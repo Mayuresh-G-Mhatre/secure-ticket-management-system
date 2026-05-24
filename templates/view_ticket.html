@@ -1,0 +1,687 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Ticket Details - STMS</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+:root{
+    --navy:#0b1628;
+    --navy-light:#13233d;
+    --gold:#c9a84c;
+    --cream:#f7f4ee;
+    --surface:#ffffff;
+    --border:#e8e2d8;
+    --muted:#64748b;
+}
+
+body{
+    background:var(--cream);
+    font-family:'DM Sans',sans-serif;
+    color:var(--navy);
+    padding:40px;
+}
+
+.container{
+    max-width:1450px;
+    margin:auto;
+}
+
+.topbar{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:35px;
+}
+
+.ticket-title{
+    font-family:'Playfair Display',serif;
+    font-size:42px;
+    font-weight:700;
+}
+
+.ticket-subtitle{
+    color:#94a3b8;
+    margin-top:6px;
+}
+
+.back-btn{
+    background:linear-gradient(135deg,var(--navy),var(--navy-light));
+    color:var(--gold);
+    text-decoration:none;
+    padding:14px 24px;
+    border-radius:14px;
+    font-weight:700;
+    transition:0.3s;
+}
+
+.back-btn:hover{
+    transform:translateY(-2px);
+}
+
+.layout{
+    display:grid;
+    grid-template-columns:2.3fr 1fr;
+    gap:28px;
+}
+
+.card{
+    background:white;
+    border-radius:24px;
+    border:1px solid var(--border);
+    box-shadow:0 10px 35px rgba(15,23,42,0.05);
+    overflow:hidden;
+}
+
+.card-header{
+    padding:24px 30px;
+    border-bottom:1px solid #ece7dd;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+}
+
+.card-title{
+    font-size:22px;
+    font-weight:700;
+}
+
+.card-body{
+    padding:30px;
+}
+
+.info-group{
+    margin-bottom:30px;
+}
+
+.label{
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    color:#94a3b8;
+    margin-bottom:10px;
+}
+
+.value{
+    font-size:18px;
+    font-weight:700;
+    color:var(--navy);
+}
+
+.description{
+    line-height:1.9;
+    color:#475569;
+    font-size:15px;
+}
+
+.badge{
+    display:inline-flex;
+    align-items:center;
+    gap:8px;
+    padding:10px 16px;
+    border-radius:999px;
+    font-size:13px;
+    font-weight:700;
+}
+
+.priority-high{
+    background:#fff7ed;
+    color:#d97706;
+}
+
+.priority-medium{
+    background:#eff6ff;
+    color:#2563eb;
+}
+
+.priority-low{
+    background:#ecfdf5;
+    color:#16a34a;
+}
+
+.priority-critical{
+    background:#fef2f2;
+    color:#dc2626;
+}
+
+.status-open{
+    background:#fef2f2;
+    color:#dc2626;
+}
+
+.status-progress{
+    background:#fff7ed;
+    color:#d97706;
+}
+
+.status-resolved{
+    background:#ecfdf5;
+    color:#16a34a;
+}
+
+.attachment-card{
+    border:2px dashed #d6d3d1;
+    border-radius:18px;
+    padding:24px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    background:#fcfbf8;
+}
+
+.file-info{
+    display:flex;
+    align-items:center;
+    gap:18px;
+}
+
+.file-icon{
+    width:60px;
+    height:60px;
+    border-radius:18px;
+    background:#f3f4f6;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:28px;
+}
+
+.file-name{
+    font-weight:700;
+    margin-bottom:4px;
+}
+
+.file-meta{
+    font-size:13px;
+    color:#94a3b8;
+}
+
+.file-actions{
+    display:flex;
+    gap:12px;
+}
+
+.file-btn{
+    padding:12px 18px;
+    border-radius:12px;
+    text-decoration:none;
+    font-weight:700;
+    font-size:14px;
+}
+
+.view-btn{
+    background:var(--navy);
+    color:white;
+}
+
+.download-btn{
+    background:#f3f4f6;
+    color:var(--navy);
+}
+
+.meta-list{
+    display:flex;
+    flex-direction:column;
+    gap:24px;
+}
+
+.meta-item{
+    padding-bottom:18px;
+    border-bottom:1px solid #f1ede7;
+}
+
+.meta-item:last-child{
+    border-bottom:none;
+}
+
+.timeline{
+    margin-top:20px;
+}
+
+.timeline-item{
+    display:flex;
+    gap:16px;
+    margin-bottom:24px;
+}
+
+.timeline-dot{
+    width:14px;
+    height:14px;
+    background:var(--gold);
+    border-radius:50%;
+    margin-top:6px;
+}
+
+.timeline-content h4{
+    margin-bottom:4px;
+    font-size:15px;
+}
+
+.timeline-content p{
+    color:#94a3b8;
+    font-size:13px;
+}
+
+.action-buttons{
+    display:flex;
+    gap:12px;
+    margin-top:20px;
+}
+
+.action-btn{
+    flex:1;
+    text-align:center;
+    padding:14px;
+    border-radius:14px;
+    font-weight:700;
+    text-decoration:none;
+}
+
+.primary-action{
+    background:linear-gradient(135deg,var(--navy),var(--navy-light));
+    color:white;
+}
+
+.secondary-action{
+    background:#f3f4f6;
+    color:var(--navy);
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="topbar">
+
+        <div>
+
+            <div class="ticket-title">
+                {{ ticket[1] }}
+            </div>
+
+            <div class="ticket-subtitle">
+                Enterprise Ticket Inspection Panel
+            </div>
+
+        </div>
+
+        <a href="/admin-dashboard" class="back-btn">
+            ← Back Dashboard
+        </a>
+
+    </div>
+
+    <div class="layout">
+
+        <!-- LEFT -->
+
+        <div>
+
+            <!-- TICKET DETAILS -->
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <div class="card-title">
+                        Ticket Details
+                    </div>
+
+                    {% if ticket[5] == 'High' %}
+                        <span class="badge priority-high">High Priority</span>
+
+                    {% elif ticket[5] == 'Medium' %}
+                        <span class="badge priority-medium">Medium Priority</span>
+
+                    {% elif ticket[5] == 'Low' %}
+                        <span class="badge priority-low">Low Priority</span>
+
+                    {% else %}
+                        <span class="badge priority-critical">Critical Priority</span>
+                    {% endif %}
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="info-group">
+
+                        <div class="label">
+                            Ticket Title
+                        </div>
+
+                        <div class="value">
+                            {{ ticket[2] }}
+                        </div>
+
+                    </div>
+
+                    <div class="info-group">
+
+                        <div class="label">
+                            Description
+                        </div>
+
+                        <div class="description">
+                            {{ ticket[3] }}
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- ATTACHMENT -->
+
+            <div class="card" style="margin-top:28px;">
+
+                <div class="card-header">
+
+                    <div class="card-title">
+                        Attachments
+                    </div>
+
+                </div>
+
+                <div class="card-body">
+
+                    {% if ticket[11] %}
+
+                    <div class="attachment-card">
+
+                        <div class="file-info">
+
+                            <div class="file-icon">
+                                📎
+                            </div>
+
+                            <div>
+
+                                <div class="file-name">
+                                    {{ ticket[11] }}
+                                </div>
+
+                                <div class="file-meta">
+                                    Uploaded Evidence File
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                        <div class="file-actions">
+
+                            <a href="/uploads/{{ ticket[11] }}"
+                               target="_blank"
+                               class="file-btn view-btn">
+
+                               View
+
+                            </a>
+
+                            <a href="/uploads/{{ ticket[11] }}"
+                               download
+                               class="file-btn download-btn">
+
+                               Download
+
+                            </a>
+
+                        </div>
+
+                    </div>
+
+                    {% else %}
+
+                    <div class="attachment-card">
+
+                        No attachment uploaded.
+
+                    </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+            <!-- ACTIVITY -->
+
+            <div class="card" style="margin-top:28px;">
+
+                <div class="card-header">
+
+                    <div class="card-title">
+                        Activity Timeline
+                    </div>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="timeline">
+
+                        <div class="timeline-item">
+
+                            <div class="timeline-dot"></div>
+
+                            <div class="timeline-content">
+
+                                <h4>
+                                    Ticket Created
+                                </h4>
+
+                                <p>
+                                    {{ ticket[9] }}
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                        <div class="timeline-item">
+
+                            <div class="timeline-dot"></div>
+
+                            <div class="timeline-content">
+
+                                <h4>
+                                    Attachment Uploaded
+                                </h4>
+
+                                <p>
+                                    Evidence/document attached to ticket
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- RIGHT SIDEBAR -->
+
+        <div>
+
+            <div class="card">
+
+                <div class="card-header">
+
+                    <div class="card-title">
+                        Ticket Metadata
+                    </div>
+
+                </div>
+
+                <div class="card-body">
+
+                    <div class="meta-list">
+
+                        <div class="meta-item">
+
+                            <div class="label">
+                                Status
+                            </div>
+
+                            {% if ticket[6] == 'Open' %}
+
+                                <span class="badge status-open">
+                                    Open
+                                </span>
+
+                            {% elif ticket[6] == 'In Progress' %}
+
+                                <span class="badge status-progress">
+                                    In Progress
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge status-resolved">
+                                    {{ ticket[6] }}
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                        <div class="meta-item">
+
+                            <div class="label">
+                                Category
+                            </div>
+
+                            <div class="value">
+                                {{ ticket[4] }}
+                            </div>
+
+                        </div>
+
+                        <div class="meta-item">
+
+                            <div class="label">
+                                Created At
+                            </div>
+
+                            <div class="value">
+                                {{ ticket[9] }}
+                            </div>
+
+                        </div>
+
+                        <div class="meta-item">
+
+                            <div class="label">
+                                Assigned Engineer
+                            </div>
+
+                            <div class="value">
+                                Engineer
+                            </div>
+
+                        </div>
+
+                        <div class="meta-item">
+
+                            <div class="label">
+                                Created By
+                            </div>
+
+                            <div class="value">
+                                Admin User
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="action-buttons">
+
+    <form
+        action="/update-status/{{ ticket[0] }}"
+        method="POST"
+        style="width:100%;"
+    >
+
+        <select
+            name="status"
+            style="
+                width:100%;
+                padding:14px;
+                border-radius:14px;
+                border:1px solid #d6d3d1;
+                margin-bottom:12px;
+                font-size:14px;
+                font-weight:600;
+            "
+        >
+
+            <option value="Open">Open</option>
+
+            <option value="In Progress">
+                In Progress
+            </option>
+
+            <option value="Resolved">
+                Resolved
+            </option>
+
+            <option value="Closed">
+                Closed
+            </option>
+
+        </select>
+
+        <button
+            type="submit"
+            class="action-btn primary-action"
+            style="
+                width:100%;
+                border:none;
+                cursor:pointer;
+            "
+        >
+
+            Update Status
+
+        </button>
+
+    </form>
+
+</div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>
