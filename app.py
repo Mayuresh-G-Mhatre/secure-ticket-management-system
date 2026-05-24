@@ -88,24 +88,109 @@ def login():
 
 @app.route('/admin-dashboard')
 def admin_dashboard():
+
+    search = request.args.get('search')
+
     cur = mysql.connection.cursor()
 
-    query = """
-       SELECT ticket_id, ticket_number, title, priority, status
-        FROM tickets
-        ORDER BY created_at DESC
-    """
+    # -------------------------
+    # FETCH / SEARCH TICKETS
+    # -------------------------
 
-    cur.execute(query)
+    if search:
+
+        query = """
+            SELECT
+        tickets.ticket_id,
+        tickets.ticket_number,
+        tickets.title,
+        tickets.priority,
+        tickets.status,
+        users.full_name
+
+    FROM tickets
+
+    LEFT JOIN users
+    ON tickets.assigned_to = users.id
+
+    WHERE tickets.is_archived = 0
+    AND (
+        tickets.ticket_number LIKE %s
+        OR tickets.title LIKE %s
+    )
+
+    ORDER BY tickets.created_at DESC
+        """
+
+        search_term = f"%{search}%"
+
+        cur.execute(query, (search_term, search_term))
+
+    else:
+
+        query = """
+           SELECT
+        tickets.ticket_id,
+        tickets.ticket_number,
+        tickets.title,
+        tickets.priority,
+        tickets.status,
+        users.full_name
+
+    FROM tickets
+
+    LEFT JOIN users
+    ON tickets.assigned_to = users.id
+
+    WHERE tickets.is_archived = 0
+
+    ORDER BY tickets.created_at DESC
+        """
+
+        cur.execute(query)
 
     tickets = cur.fetchall()
+
+    # -------------------------
+    # SUMMARY COUNTS
+    # -------------------------
+
+    cur.execute("SELECT COUNT(*) FROM tickets")
+    total_tickets = cur.fetchone()[0]
+
+    cur.execute("""
+        SELECT COUNT(*)
+        FROM tickets
+        WHERE status='Open'
+    """)
+    open_tickets = cur.fetchone()[0]
+
+    cur.execute("""
+        SELECT COUNT(*)
+        FROM tickets
+        WHERE status='In Progress'
+    """)
+    in_progress_tickets = cur.fetchone()[0]
+
+    cur.execute("""
+        SELECT COUNT(*)
+        FROM tickets
+        WHERE status='Resolved'
+    """)
+    resolved_tickets = cur.fetchone()[0]
 
     cur.close()
 
     return render_template(
-        'admin_dashboard.html',
-        tickets=tickets
-    )
+    'admin_dashboard.html',
+    tickets=tickets,
+    total_tickets=total_tickets,
+    open_tickets=open_tickets,
+    in_progress_tickets=in_progress_tickets,
+    resolved_tickets=resolved_tickets,
+    search=search,
+    active_page='all_tickets'
+)
 
 @app.route('/create-ticket', methods=['GET', 'POST'])
 def create_ticket():
@@ -181,22 +266,43 @@ def view_ticket(ticket_id):
 
     cur = mysql.connection.cursor()
 
+    # -------------------------
+    # FETCH TICKET
+    # -------------------------
+
     query = """
-        SELECT *
-        FROM tickets
-        WHERE ticket_id = %s
+        SELECT t.*,
+               u.full_name
+        FROM tickets t
+        LEFT JOIN users u
+        ON t.assigned_to = u.id
+        WHERE t.ticket_id = %s
     """
 
     cur.execute(query, (ticket_id,))
 
     ticket = cur.fetchone()
 
+    # -------------------------
+    # FETCH ENGINEERS
+    # -------------------------
+
+    cur.execute("""
+        SELECT id, full_name
+        FROM users
+        WHERE role='engineer'
+    """)
+
+    engineers = cur.fetchall()
+
     cur.close()
 
     return render_template(
         'view_ticket.html',
-        ticket=ticket
+        ticket=ticket,
+        engineers=engineers
     )
+
 @app.route('/update-status/<int:ticket_id>', methods=['POST'])
 def update_status(ticket_id):
 
@@ -217,6 +323,101 @@ def update_status(ticket_id):
     cur.close()
 
     return redirect(f'/ticket/{ticket_id}')
+
+@app.route('/assign-ticket/<int:ticket_id>', methods=['POST'])
+def assign_ticket(ticket_id):
+
+    engineer_id = request.form['engineer_id']
+
+    cur = mysql.connection.cursor()
+
+    query = """
+        UPDATE tickets
+        SET assigned_to = %s
+        WHERE ticket_id = %s
+    """
+
+    cur.execute(query, (engineer_id, ticket_id))
+
+    mysql.connection.commit()
+
+    cur.close()
+
+    return redirect(f'/ticket/{ticket_id}')
+
+@app.route('/archive-ticket/<int:ticket_id>', methods=['POST'])
+def archive_ticket(ticket_id):
+
+    cur = mysql.connection.cursor()
+
+    query = """
+        UPDATE tickets
+        SET is_archived = 1
+        WHERE ticket_id = %s
+    """
+
+    cur.execute(query, (ticket_id,))
+
+    mysql.connection.commit()
+
+    cur.close()
+
+    return redirect('/admin-dashboard')
+
+@app.route('/archived-tickets')
+def archived_tickets():
+
+    cur = mysql.connection.cursor()
+
+    query = """
+        SELECT
+            tickets.ticket_id,
+            tickets.ticket_number,
+            tickets.title,
+            tickets.priority,
+            tickets.status,
+            users.full_name
+
+        FROM tickets
+
+        LEFT JOIN users
+        ON tickets.assigned_to = users.id
+
+        WHERE tickets.is_archived = 1
+
+        ORDER BY tickets.created_at DESC
+    """
+
+    cur.execute(query)
+
+    tickets = cur.fetchall()
+
+    cur.close()
+
+    return render_template(
+    'archived_tickets.html',
+    tickets=tickets,
+    active_page='archived_tickets'
+)
+
+@app.route('/restore-ticket/<int:ticket_id>', methods=['POST'])
+def restore_ticket(ticket_id):
+
+    cur = mysql.connection.cursor()
+
+    query = """
+        UPDATE tickets
+        SET is_archived = 0
+        WHERE ticket_id = %s
+    """
+
+    cur.execute(query, (ticket_id,))
+
+    mysql.connection.commit()
+
+    cur.close()
+
+    return redirect('/archived-tickets')
 
 @app.route('/engineer-dashboard')
 def engineer_dashboard():
