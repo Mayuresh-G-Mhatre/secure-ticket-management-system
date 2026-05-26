@@ -321,11 +321,21 @@ body{
 
         </div>
 
-        <a href="/admin-dashboard" class="back-btn">
-            ← Back Dashboard
-        </a>
+        {% if session.role == 'admin' %}
 
-    </div>
+<a href="/admin-dashboard" class="back-btn">
+    ← Back Dashboard
+</a>
+
+{% elif session.role == 'engineer' %}
+
+<a href="/engineer-dashboard" class="back-btn">
+    ← Back Dashboard
+</a>
+
+{% endif %}
+
+</div>
 
     <div class="layout">
 
@@ -678,7 +688,10 @@ body{
 
     </form>
 
+{% if session.role == 'admin' %}
+
     <!-- ASSIGN ENGINEER -->
+     
 
     <form
         action="/assign-ticket/{{ ticket[0] }}"
@@ -755,6 +768,8 @@ body{
 </button>
 
     </form>
+
+    {% endif %}
 
 </div>
 

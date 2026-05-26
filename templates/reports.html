@@ -572,8 +572,8 @@
                 </a>
 
                 <!-- All Tickets -->
-                <a href="/admin-dashboard"
-                   class="nav-item">
+               <a href="/admin-dashboard"
+   class="nav-item {% if active_page == 'dashboard' %}active{% endif %}">
 
                     <svg viewBox="0 0 24 24"
                          fill="none"
@@ -591,8 +591,8 @@
                 </a>
 
                 <!-- Assign Tickets with badge -->
-                <a href="/assign-tickets"
-                   class="nav-item">
+             <a href="/unassigned-tickets"
+   class="nav-item {% if active_page == 'unassigned_tickets' %}active{% endif %}">
 
                     <svg viewBox="0 0 24 24"
                          fill="none"
@@ -607,7 +607,7 @@
 
                     </svg>
 
-                    Assign Tickets
+                    Unassigned Tickets
 
                     <span class="nav-badge">{{ open_tickets }}</span>
 
@@ -632,7 +632,7 @@
 
                 <!-- Reports (active) -->
                 <a href="/reports"
-                   class="nav-item active">
+   class="nav-item {% if active_page == 'reports' %}active{% endif %}">
 
                     <svg viewBox="0 0 24 24"
                          fill="none"

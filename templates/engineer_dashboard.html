@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Manage Users— STMS</title>
+<title>Engineer Dashboard — STMS</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -57,7 +57,6 @@ body {
   height: 100vh;
 }
 
-/* Subtle texture */
 .sidebar::before {
   content: '';
   position: absolute;
@@ -68,7 +67,6 @@ body {
   pointer-events: none;
 }
 
-/* Gold top accent bar */
 .sidebar::after {
   content: '';
   position: absolute;
@@ -121,6 +119,8 @@ body {
 
 /* Nav */
 .nav-section {
+  flex: 1;
+  overflow-y: auto;
   padding: 20px 14px 10px;
   position: relative;
   z-index: 1;
@@ -203,7 +203,6 @@ body {
 
 /* Sidebar bottom */
 .sidebar-footer {
-  margin-top: auto;
   padding: 16px 14px 24px;
   border-top: 1px solid var(--border);
   position: relative;
@@ -319,7 +318,6 @@ body {
 }
 
 .topbar-btn:hover { background: white; border-color: var(--gold); color: var(--gold); }
-
 .topbar-btn svg { width: 16px; height: 16px; }
 
 .notif-dot {
@@ -348,9 +346,10 @@ body {
 }
 
 /* ── STAT CARDS ── */
+/* FIX: Changed from repeat(4,1fr) to repeat(3,1fr) to match 3 cards */
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 18px;
   margin-bottom: 24px;
 }
@@ -369,14 +368,12 @@ body {
 .stat-card:nth-child(1) { animation-delay: 0.05s; }
 .stat-card:nth-child(2) { animation-delay: 0.1s; }
 .stat-card:nth-child(3) { animation-delay: 0.15s; }
-.stat-card:nth-child(4) { animation-delay: 0.2s; }
 
 .stat-card:hover {
   transform: translateY(-3px);
   box-shadow: 0 12px 32px rgba(0,0,0,0.08);
 }
 
-/* Colored top strip per card */
 .stat-card::before {
   content: '';
   position: absolute;
@@ -385,10 +382,9 @@ body {
   border-radius: 16px 16px 0 0;
 }
 
-.stat-card.total::before  { background: linear-gradient(90deg, var(--navy), var(--navy-4)); }
-.stat-card.open::before   { background: linear-gradient(90deg, var(--red), #f87171); }
+.stat-card.total::before    { background: linear-gradient(90deg, var(--navy), var(--navy-4)); }
+.stat-card.open::before     { background: linear-gradient(90deg, var(--red), #f87171); }
 .stat-card.progress::before { background: linear-gradient(90deg, var(--amber), #fbbf24); }
-.stat-card.resolved::before { background: linear-gradient(90deg, var(--green), #4ade80); }
 
 .stat-header {
   display: flex;
@@ -413,10 +409,9 @@ body {
 
 .stat-icon svg { width: 18px; height: 18px; }
 
-.total .stat-icon  { background: rgba(11,22,40,0.08); color: var(--navy); }
-.open .stat-icon   { background: rgba(224,92,92,0.1); color: var(--red); }
+.total .stat-icon    { background: rgba(11,22,40,0.08); color: var(--navy); }
+.open .stat-icon     { background: rgba(224,92,92,0.1); color: var(--red); }
 .progress .stat-icon { background: rgba(217,119,6,0.1); color: var(--amber); }
-.resolved .stat-icon { background: rgba(22,163,74,0.1); color: var(--green); }
 
 .stat-value {
   font-family: 'Playfair Display', serif;
@@ -449,21 +444,14 @@ body {
 .trend.down { color: var(--red);   background: rgba(224,92,92,0.1); }
 .trend svg  { width: 11px; height: 11px; }
 
-/* ── ROW: TABLE + MINI STATS ── */
-.content-row {
-  display: grid;
-  grid-template-columns: 1fr 300px;
-  gap: 20px;
-  margin-bottom: 24px;
-  animation: fadeUp 0.5s 0.25s ease both;
-}
-
 /* ── PANEL ── */
 .panel {
   background: var(--surface);
   border-radius: 16px;
   border: 1px solid var(--border-lt);
   overflow: hidden;
+  margin-bottom: 24px;
+  animation: fadeUp 0.5s 0.25s ease both;
 }
 
 .panel-header {
@@ -520,17 +508,6 @@ body {
 
 .btn-outline:hover { border-color: var(--gold); color: var(--gold); }
 
-.btn-gold {
-  background: linear-gradient(135deg, var(--navy), var(--navy-3));
-  color: var(--gold-lt);
-  border: 1px solid rgba(201,168,76,0.2);
-}
-
-.btn-gold:hover {
-  background: linear-gradient(135deg, var(--navy-3), var(--navy-4));
-  box-shadow: 0 4px 14px rgba(0,0,0,0.15);
-}
-
 /* ── TABLE ── */
 .table-wrap { overflow-x: auto; }
 
@@ -584,21 +561,6 @@ td {
   max-width: 280px;
 }
 
-.assignee {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.assignee-avatar {
-  width: 26px; height: 26px;
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 10px;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-
 /* Priority badges */
 .priority {
   display: inline-flex;
@@ -639,20 +601,20 @@ td {
 
 .status-dot { width: 5px; height: 5px; border-radius: 50%; }
 
-.status.open       { background: rgba(224,92,92,0.1); color: #dc2626; }
+.status.open        { background: rgba(224,92,92,0.1); color: #dc2626; }
 .status.open .status-dot { background: #dc2626; box-shadow: 0 0 6px rgba(220,38,38,0.5); animation: pulse 1.8s infinite; }
 .status.in-progress { background: rgba(217,119,6,0.12); color: #d97706; }
 .status.in-progress .status-dot { background: #d97706; }
-.status.pending    { background: rgba(37,99,235,0.1); color: #2563eb; }
+.status.pending     { background: rgba(37,99,235,0.1); color: #2563eb; }
 .status.pending .status-dot { background: #2563eb; }
-.status.resolved   { background: rgba(22,163,74,0.1); color: #16a34a; }
+.status.resolved    { background: rgba(22,163,74,0.1); color: #16a34a; }
 .status.resolved .status-dot { background: #16a34a; }
-.status.closed 	{ background: rgba(28, 11, 40, 0.08); color: #0b49ac;}
-.status.closed .status-dot { background: #0b1628;}
+.status.closed      { background: rgba(28,11,40,0.08); color: #0b49ac; }
+.status.closed .status-dot { background: #0b1628; }
 
 @keyframes pulse {
   0%, 100% { opacity: 1; box-shadow: 0 0 6px rgba(220,38,38,0.5); }
-  50% { opacity: 0.6; box-shadow: 0 0 2px rgba(220,38,38,0.2); }
+  50%       { opacity: 0.6; box-shadow: 0 0 2px rgba(220,38,38,0.2); }
 }
 
 .action-btn {
@@ -665,157 +627,11 @@ td {
   color: var(--text-2);
   cursor: pointer;
   transition: all 0.15s;
+  text-decoration: none;
+  display: inline-block;
 }
 
 .action-btn:hover { border-color: var(--gold); color: var(--gold); }
-
-/* ── SIDE PANEL (right column) ── */
-.side-panels {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-/* Quick stats */
-.quick-stats-list {
-  padding: 6px 0;
-}
-
-.qs-item {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 13px 20px;
-  border-bottom: 1px solid #f3f0ea;
-  transition: background 0.15s;
-}
-
-.qs-item:last-child { border-bottom: none; }
-.qs-item:hover { background: #fdf9f0; }
-
-.qs-left {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.qs-icon {
-  width: 32px; height: 32px;
-  border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-}
-
-.qs-icon svg { width: 15px; height: 15px; }
-
-.qs-label { font-size: 13px; color: var(--text-2); font-weight: 400; }
-.qs-count { font-size: 15px; font-weight: 700; color: var(--text-1); }
-
-/* Activity feed */
-.activity-list { padding: 4px 0; }
-
-.activity-item {
-  display: flex;
-  gap: 12px;
-  padding: 13px 20px;
-  border-bottom: 1px solid #f3f0ea;
-  align-items: flex-start;
-}
-
-.activity-item:last-child { border-bottom: none; }
-
-.activity-dot {
-  width: 8px; height: 8px;
-  border-radius: 50%;
-  flex-shrink: 0;
-  margin-top: 5px;
-}
-
-.activity-text {
-  font-size: 12.5px;
-  color: var(--text-2);
-  line-height: 1.5;
-  flex: 1;
-}
-
-.activity-text strong { color: var(--text-1); font-weight: 600; }
-
-.activity-time {
-  font-size: 11px;
-  color: var(--text-3);
-  white-space: nowrap;
-  margin-top: 2px;
-}
-
-/* ── BOTTOM ROW ── */
-.bottom-row {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 20px;
-  animation: fadeUp 0.5s 0.35s ease both;
-}
-
-/* Engineer performance cards */
-.engineer-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 20px;
-  border-bottom: 1px solid #f3f0ea;
-}
-
-.engineer-item:last-child { border-bottom: none; }
-
-.engineer-avatar {
-  width: 36px; height: 36px;
-  border-radius: 50%;
-  font-size: 13px;
-  font-weight: 700;
-  display: flex; align-items: center; justify-content: center;
-  flex-shrink: 0;
-}
-
-.engineer-info { flex: 1; min-width: 0; }
-.engineer-name { font-size: 13px; font-weight: 600; color: var(--text-1); }
-.engineer-role { font-size: 11px; color: var(--text-3); }
-
-.engineer-stats { text-align: right; }
-.engineer-tickets { font-size: 14px; font-weight: 700; color: var(--text-1); }
-.engineer-label  { font-size: 10px; color: var(--text-3); }
-
-/* Progress bar */
-.progress-bar-wrap { margin-top: 4px; }
-.progress-bar-track {
-  height: 3px;
-  background: #f0ece4;
-  border-radius: 3px;
-  overflow: hidden;
-}
-.progress-bar-fill {
-  height: 100%;
-  border-radius: 3px;
-  background: linear-gradient(90deg, var(--gold), var(--gold-lt));
-  transition: width 0.6s ease;
-}
-
-/* SLA panel */
-.sla-item {
-  padding: 14px 20px;
-  border-bottom: 1px solid #f3f0ea;
-}
-.sla-item:last-child { border-bottom: none; }
-.sla-header { display: flex; justify-content: space-between; margin-bottom: 8px; }
-.sla-name { font-size: 13px; color: var(--text-2); }
-.sla-pct  { font-size: 13px; font-weight: 700; color: var(--text-1); }
-.sla-track {
-  height: 6px;
-  background: #f0ece4;
-  border-radius: 6px;
-  overflow: hidden;
-}
-.sla-fill {
-  height: 100%;
-  border-radius: 6px;
-}
 
 /* ── ANIMATIONS ── */
 @keyframes fadeUp {
@@ -836,6 +652,7 @@ td {
      SIDEBAR
 ════════════════════════════════ -->
 <aside class="sidebar">
+
   <div class="sidebar-header">
     <div class="brand-mark">
       <div class="brand-icon">
@@ -848,106 +665,29 @@ td {
     <div class="brand-sub">Secure Ticket Management</div>
   </div>
 
-  <nav style="flex:1; overflow-y:auto; padding: 16px 14px;">
+  <!-- NAV ITEMS — filled in -->
+  <nav class="nav-section">
     <div class="nav-label">Main Menu</div>
 
+    <a href="/engineer-dashboard" class="nav-item active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <rect x="3" y="3" width="7" height="7"/>
+        <rect x="14" y="3" width="7" height="7"/>
+        <rect x="14" y="14" width="7" height="7"/>
+        <rect x="3" y="14" width="7" height="7"/>
+      </svg>
+      My Tickets
+      <span class="nav-badge">{{ total_assigned }}</span>
+    </a>
     
-
-    <a href="/manage-users" class="nav-item active">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/>
-        <path d="M23 21v-2a4 4 0 00-3-3.87"/><path d="M16 3.13a4 4 0 010 7.75"/>
-      </svg>
-      Manage Users
-    </a>
-
-    <a href="/admin-dashboard"
-   class="nav-item {% if active_page == 'all_tickets' %}active{% endif %}">
-
-    <svg viewBox="0 0 24 24"
-         fill="none"
-         stroke="currentColor"
-         stroke-width="2">
-
-        <path d="M8 6h13"/>
-        <path d="M8 12h13"/>
-        <path d="M8 18h13"/>
-        <path d="M3 6h.01"/>
-        <path d="M3 12h.01"/>
-        <path d="M3 18h.01"/>
-
-    </svg>
-
-    All Tickets
-
-    <span class="nav-badge">
-        {{ total_tickets }}
-    </span>
-
-</a>
-
-    <a href="/archived-tickets"
-   class="nav-item {% if active_page == 'archived_tickets' %}active{% endif %}">
-
-  <svg viewBox="0 0 24 24"
-       fill="none"
-       stroke="currentColor"
-       stroke-width="2">
-
-    <polyline points="21 8 21 21 3 21 3 8"></polyline>
-
-    <rect x="1" y="3" width="22" height="5"></rect>
-
-    <line x1="10" y1="12" x2="14" y2="12"></line>
-
-  </svg>
-
-  Archived Tickets
-
-</a>
-
-   <a href="/reports"
-   class="nav-item {% if active_page == 'reports' %}active{% endif %}">
-
-    <svg viewBox="0 0 24 24"
-         fill="none"
-         stroke="currentColor"
-         stroke-width="2">
-
-        <line x1="18" y1="20" x2="18" y2="10"/>
-        <line x1="12" y1="20" x2="12" y2="4"/>
-        <line x1="6" y1="20" x2="6" y2="14"/>
-
-    </svg>
-
-    Reports
-
-</a>
-
-    <a href="/settings" class="nav-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <circle cx="12" cy="12" r="3"/>
-        <path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/>
-      </svg>
-      Settings
-    </a>
   </nav>
-
-    <a href="/unassigned-tickets" class="nav-item">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
-      </svg>
-      Unassigned Tickets
-      <span class="nav-badge">12</span>
-    </a>
-
 
   <div class="sidebar-footer">
     <div class="admin-card">
       <div class="admin-avatar">A</div>
       <div class="admin-info">
-        <div class="admin-name">Admin User</div>
-        <div class="admin-role">System Administrator</div>
+        <div class="admin-name">{{ session.full_name }}</div>
+        <div class="admin-role">Support Engineer</div>
       </div>
       <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.3)" stroke-width="2" style="width:14px;height:14px;">
         <circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/>
@@ -956,11 +696,13 @@ td {
     <a href="/" class="logout-btn">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
         <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/>
-        <polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/>
+        <polyline points="16 17 21 12 16 7"/>
+        <line x1="21" y1="12" x2="9" y2="12"/>
       </svg>
       Sign Out
     </a>
   </div>
+
 </aside>
 
 <!-- ════════════════════════════════
@@ -971,13 +713,36 @@ td {
   <!-- TOPBAR -->
   <div class="topbar">
     <div class="topbar-left">
-      <h1>Manage Users</h1>
+      <h1>Engineer Dashboard</h1>
       <div class="breadcrumb">
-        STMS &nbsp;›&nbsp; <span>User Administration</span>
+        STMS &nbsp;›&nbsp; <span>Overview</span>
       </div>
     </div>
     <div class="topbar-right">
-      
+      <form method="GET" action="/engineer-dashboard" style="display:flex;align-items:center;gap:8px;">
+        <input
+          type="text"
+          name="search"
+          placeholder="Search tickets..."
+          value="{{ search if search else '' }}"
+          style="
+            padding:10px 14px;
+            border-radius:10px;
+            border:1px solid #e8e2d8;
+            outline:none;
+            font-size:13px;
+            width:220px;
+            background:white;
+          "
+        >
+        <button type="submit" class="topbar-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"/>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+        </button>
+      </form>
+
       <div class="topbar-btn" style="position:relative;">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/>
@@ -985,117 +750,161 @@ td {
         </svg>
         <div class="notif-dot"></div>
       </div>
-      <div class="topbar-date" id="live-date">Tuesday, 19 May 2026</div>
+
+      <div class="topbar-date" id="live-date"></div>
     </div>
   </div>
 
   <!-- SCROLLABLE CONTENT -->
   <div class="content">
 
-    <!-- MAIN ROW: TABLE + SIDE PANELS -->
-    <div class="content-row">
+    <!-- STAT CARDS — FIX: grid is now 3 cols, no stray closing div -->
+    <div class="stats-grid">
 
-      <!-- RECENT TICKETS TABLE -->
-      <div class="panel">
-        <div class="panel-header">
-          <div class="panel-title">
-            <div class="panel-title-dot"></div>
-            <h2>System Users</h2>
-          </div>
-          <div class="panel-actions">
-          <a href="/add-user"
-   class="btn-sm btn-primary"
-   style="text-decoration:none;
-            display:inline-flex;
-            align-items:center;
-            justify-content:center;">
-
-    + Add User
-
-</a>
+      <div class="stat-card total">
+        <div class="stat-header">
+          <div class="stat-label">Assigned Tickets</div>
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+            </svg>
           </div>
         </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-    <tr>
-        <th>ID</th>
-        <th>Full Name</th>
-        <th>Username</th>
-        <th>Email</th>
-        <th>Role</th>
-        <th>Actions</th>
-    </tr>
-</thead>
-           <tbody>
-
-{% for user in users %}
-
-<tr>
-
-    <td>#{{ user[0] }}</td>
-
-    <td>{{ user[1] }}</td>
-
-    <td>{{ user[2] }}</td>
-
-    <td>{{ user[3] }}</td>
-
-    <td>
-
-        <span class="status-badge open">
-
-            {% if user[4] == 'admin' %}
-    <span class="priority critical">{{ user[4] }}</span>
-
-{% elif user[4] == 'manager' %}
-    <span class="priority high">{{ user[4] }}</span>
-
-{% elif user[4] == 'engineer' %}
-    <span class="priority medium">{{ user[4] }}</span>
-
-{% else %}
-    <span class="priority low">{{ user[4] }}</span>
-{% endif %}
-
-        </span>
-
-    </td>
-
-    <td>
-
-        <form method="POST"
-      action="/delete-user/{{ user[0] }}"
-      onsubmit="return confirm('Are you sure you want to delete this user?');">
-
-    <button type="submit"
-            class="delete-btn">
-
-        🗑
-
-    </button>
-
-</form
-    </td>
-
-</tr>
-
-{% endfor %}
-
-</tbody>
-          </table>
+        <div class="stat-value">{{ total_assigned }}</div>
+        <div class="stat-footer">
+          <span class="trend up">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+            +12%
+          </span>
+          Live ticket monitoring
         </div>
       </div>
 
-      <!-- Ticket Distribution -->
-      
+      <div class="stat-card open">
+        <div class="stat-header">
+          <div class="stat-label">In Progress Tickets</div>
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="8" x2="12" y2="12"/>
+              <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+          </div>
+        </div>
+        <div class="stat-value">{{ in_progress_tickets }}</div>
+        <div class="stat-footer">
+          <span class="trend down">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+            −3
+          </span>
+          Updated in real time
+        </div>
+      </div>
 
-    </div><!-- /bottom-row -->
-  </div><!-- /content -->
-</div><!-- /main -->
+      <div class="stat-card progress">
+        <div class="stat-header">
+          <div class="stat-label">Resolved Tickets</div>
+          <div class="stat-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+            </svg>
+          </div>
+        </div>
+        <div class="stat-value">{{ resolved_tickets }}</div>
+        <div class="stat-footer">
+          <span class="trend up">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+            +5
+          </span>
+          Auto-synced dashboard
+        </div>
+      </div>
+
+    </div>
+    <!-- /stats-grid — FIX: only ONE closing div here, not two -->
+
+    <!-- ASSIGNED TICKETS TABLE -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">
+          <div class="panel-title-dot"></div>
+          <h2>Assigned Tickets</h2>
+        </div>
+        <div class="panel-actions">
+          <button class="btn-sm btn-outline">Filter</button>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Ticket ID</th>
+              <th>Issue</th>
+              <th>Priority</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+
+            {% for ticket in tickets %}
+            <tr>
+
+              <td>
+                <span class="ticket-id">{{ ticket[1] }}</span>
+              </td>
+
+              <td>
+                <span class="ticket-issue">{{ ticket[2] }}</span>
+              </td>
+
+              <!-- PRIORITY -->
+              <td>
+                {% if ticket[3] == 'Critical' %}
+                  <span class="priority critical"><span class="priority-dot"></span>{{ ticket[3] }}</span>
+                {% elif ticket[3] == 'High' %}
+                  <span class="priority high"><span class="priority-dot"></span>{{ ticket[3] }}</span>
+                {% elif ticket[3] == 'Medium' %}
+                  <span class="priority medium"><span class="priority-dot"></span>{{ ticket[3] }}</span>
+                {% elif ticket[3] == 'Low' %}
+                  <span class="priority low"><span class="priority-dot"></span>{{ ticket[3] }}</span>
+                {% endif %}
+              </td>
+
+              <!-- STATUS -->
+              <td>
+                {% if ticket[4] == 'Open' %}
+                  <span class="status open"><span class="status-dot"></span>Open</span>
+                {% elif ticket[4] == 'In Progress' %}
+                  <span class="status in-progress"><span class="status-dot"></span>In Progress</span>
+                {% elif ticket[4] == 'Resolved' %}
+                  <span class="status resolved"><span class="status-dot"></span>Resolved</span>
+                {% elif ticket[4] == 'Closed' %}
+                  <span class="status closed"><span class="status-dot"></span>Closed</span>
+                {% endif %}
+              </td>
+
+              <td>
+                <a href="/ticket/{{ ticket[0] }}" class="action-btn">View</a>
+              </td>
+
+            </tr>
+            {% endfor %}
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!-- /panel -->
+
+  </div>
+  <!-- /content -->
+
+</div>
+<!-- /main -->
 
 <script>
-  // Live date
   const d = new Date();
   document.getElementById('live-date').textContent = d.toLocaleDateString('en-GB', {
     weekday:'long', day:'numeric', month:'long', year:'numeric'

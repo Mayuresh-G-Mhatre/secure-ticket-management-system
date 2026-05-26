@@ -64,6 +64,7 @@ def login():
         session['username'] = user[2]
         session['role'] = user[5]
         session['full_name'] = user[1]
+        session['user_id'] = user[0]
 
         # ROLE-BASED REDIRECTION
 
@@ -191,6 +192,43 @@ def admin_dashboard():
     search=search,
     active_page='all_tickets'
 )
+
+@app.route('/unassigned-tickets')
+def unassigned_tickets():
+
+    cur = mysql.connection.cursor()
+
+    query = """
+        SELECT
+            tickets.ticket_id,
+            tickets.ticket_number,
+            tickets.title,
+            tickets.priority,
+            tickets.status,
+            users.full_name
+
+        FROM tickets
+
+        LEFT JOIN users
+        ON tickets.assigned_to = users.id
+
+        WHERE tickets.assigned_to IS NULL
+        AND tickets.is_archived = 0
+
+        ORDER BY tickets.created_at DESC
+    """
+
+    cur.execute(query)
+
+    tickets = cur.fetchall()
+
+    cur.close()
+
+    return render_template(
+        'unassigned_tickets.html',
+        tickets=tickets,
+        active_page='unassigned_tickets'
+    )
 
 @app.route('/create-ticket', methods=['GET', 'POST'])
 def create_ticket():
@@ -508,6 +546,70 @@ def reports():
         active_page='reports'
     )
 
+@app.route('/settings')
+def settings():
+
+    cur = mysql.connection.cursor()
+
+    # -------------------------
+    # TOTAL USERS
+    # -------------------------
+
+    cur.execute("""
+        SELECT COUNT(*)
+        FROM users
+    """)
+
+    total_users = cur.fetchone()[0]
+
+    # -------------------------
+    # TOTAL ENGINEERS
+    # -------------------------
+
+    cur.execute("""
+        SELECT COUNT(*)
+        FROM users
+        WHERE role='engineer'
+    """)
+
+    total_engineers = cur.fetchone()[0]
+
+    # -------------------------
+    # TOTAL TICKETS
+    # -------------------------
+
+    cur.execute("""
+        SELECT COUNT(*)
+        FROM tickets
+    """)
+
+    total_tickets = cur.fetchone()[0]
+
+    # -------------------------
+    # ARCHIVED TICKETS
+    # -------------------------
+
+    cur.execute("""
+        SELECT COUNT(*)
+        FROM tickets
+        WHERE is_archived = 1
+    """)
+
+    archived_tickets = cur.fetchone()[0]
+
+    cur.close()
+
+    return render_template(
+        'settings.html',
+
+        total_users=total_users,
+        total_engineers=total_engineers,
+        total_tickets=total_tickets,
+        archived_tickets=archived_tickets,
+
+        active_page='settings'
+    )
+
 @app.route('/restore-ticket/<int:ticket_id>', methods=['POST'])
 def restore_ticket(ticket_id):
 
@@ -619,7 +721,85 @@ def delete_user(user_id):
 
 @app.route('/engineer-dashboard')
 def engineer_dashboard():
-    return "<h1>Engineer Dashboard</h1>"
+
+    engineer_id = session.get('user_id')
+
+    cur = mysql.connection.cursor()
+
+    # -------------------------
+    # FETCH ASSIGNED TICKETS
+    # -------------------------
+
+    query = """
+        SELECT
+            ticket_id,
+            ticket_number,
+            title,
+            priority,
+            status
+
+        FROM tickets
+
+        WHERE assigned_to = %s
+        AND is_archived = 0
+
+        ORDER BY created_at DESC
+    """
+
+    cur.execute(query, (engineer_id,))
+
+    tickets = cur.fetchall()
+
+    # -------------------------
+    # TOTAL ASSIGNED
+    # -------------------------
+
+    cur.execute("""
+        SELECT COUNT(*)
+        FROM tickets
+        WHERE assigned_to = %s
+        AND is_archived = 0
+    """, (engineer_id,))
+
+    total_assigned = cur.fetchone()[0]
+
+    # -------------------------
+    # RESOLVED
+    # -------------------------
+
+    cur.execute("""
+        SELECT COUNT(*)
+        FROM tickets
+        WHERE assigned_to = %s
+        AND status='Resolved'
+    """, (engineer_id,))
+
+    resolved_tickets = cur.fetchone()[0]
+
+    # -------------------------
+    # IN PROGRESS
+    # -------------------------
+
+    cur.execute("""
+        SELECT COUNT(*)
+        FROM tickets
+        WHERE assigned_to = %s
+        AND status='In Progress'
+    """, (engineer_id,))
+
+    in_progress_tickets = cur.fetchone()[0]
+
+    cur.close()
+
+    return render_template(
+        'engineer_dashboard.html',
+
+        tickets=tickets,
+
+        total_assigned=total_assigned,
+        resolved_tickets=resolved_tickets,
+        in_progress_tickets=in_progress_tickets
+    )
 
 @app.route('/manager-dashboard')
 def manager_dashboard():
