@@ -400,6 +400,114 @@ def archived_tickets():
     active_page='archived_tickets'
 )
 
+@app.route('/reports')
+def reports():
+
+    cur = mysql.connection.cursor()
+
+    # -------------------------
+    # TOTAL TICKETS
+    # -------------------------
+
+    cur.execute("SELECT COUNT(*) FROM tickets")
+    total_tickets = cur.fetchone()[0]
+
+    # -------------------------
+    # OPEN
+    # -------------------------
+
+    cur.execute("""
+        SELECT COUNT(*)
+        FROM tickets
+        WHERE status='Open'
+    """)
+
+    open_tickets = cur.fetchone()[0]
+
+    # -------------------------
+    # IN PROGRESS
+    # -------------------------
+
+    cur.execute("""
+        SELECT COUNT(*)
+        FROM tickets
+        WHERE status='In Progress'
+    """)
+
+    in_progress_tickets = cur.fetchone()[0]
+
+    # -------------------------
+    # RESOLVED
+    # -------------------------
+
+    cur.execute("""
+        SELECT COUNT(*)
+        FROM tickets
+        WHERE status='Resolved'
+    """)
+
+    resolved_tickets = cur.fetchone()[0]
+
+    # -------------------------
+    # CLOSED
+    # -------------------------
+
+    cur.execute("""
+        SELECT COUNT(*)
+        FROM tickets
+        WHERE status='Closed'
+    """)
+
+    closed_tickets = cur.fetchone()[0]
+
+    # -------------------------
+    # CRITICAL TICKETS
+    # -------------------------
+
+    cur.execute("""
+        SELECT COUNT(*)
+        FROM tickets
+        WHERE priority='Critical'
+    """)
+
+    critical_tickets = cur.fetchone()[0]
+
+    # -------------------------
+    # ENGINEER PERFORMANCE
+    # -------------------------
+
+    cur.execute("""
+        SELECT
+            users.full_name,
+            COUNT(tickets.ticket_id)
+
+        FROM users
+
+        LEFT JOIN tickets
+        ON users.id = tickets.assigned_to
+
+        WHERE users.role='engineer'
+
+        GROUP BY users.full_name
+    """)
+
+    engineer_stats = cur.fetchall()
+
+    cur.close()
+
+    return render_template(
+        'reports.html',
+
+        total_tickets=total_tickets,
+        open_tickets=open_tickets,
+        in_progress_tickets=in_progress_tickets,
+        resolved_tickets=resolved_tickets,
+        closed_tickets=closed_tickets,
+        critical_tickets=critical_tickets,
+        engineer_stats=engineer_stats,
+        active_page='reports'
+    )
+
 @app.route('/restore-ticket/<int:ticket_id>', methods=['POST'])
 def restore_ticket(ticket_id):
 
@@ -418,6 +526,96 @@ def restore_ticket(ticket_id):
     cur.close()
 
     return redirect('/archived-tickets')
+
+@app.route('/manage-users')
+def manage_users():
+
+    cur = mysql.connection.cursor()
+
+    query = """
+        SELECT
+            id,
+            full_name,
+            username,
+            email,
+            role
+        FROM users
+        ORDER BY id DESC
+    """
+
+    cur.execute(query)
+
+    users = cur.fetchall()
+
+    cur.close()
+
+    return render_template(
+        'manage_users.html',
+        users=users,
+        active_page='manage_users'
+    )
+
+@app.route('/add-user', methods=['GET', 'POST'])
+def add_user():
+
+    if request.method == 'POST':
+
+        full_name = request.form['full_name']
+        username = request.form['username']
+        email = request.form['email']
+        password = request.form['password']
+        role = request.form['role']
+
+        cur = mysql.connection.cursor()
+
+        query = """
+            INSERT INTO users
+            (full_name, username, email, password, role)
+
+            VALUES (%s, %s, %s, %s, %s)
+        """
+
+        values = (
+            full_name,
+            username,
+            email,
+            password,
+            role
+        )
+
+        cur.execute(query, values)
+
+        mysql.connection.commit()
+
+        cur.close()
+
+        return redirect('/manage-users')
+
+    return render_template('add_user.html')
+
+@app.route('/delete-user/<int:user_id>', methods=['POST'])
+def delete_user(user_id):
+
+    # Prevent deleting main admin
+
+    if user_id == 1:
+
+        return redirect('/manage-users')
+
+    cur = mysql.connection.cursor()
+
+    query = """
+        DELETE FROM users
+        WHERE id = %s
+    """
+
+    cur.execute(query, (user_id,))
+
+    mysql.connection.commit()
+
+    cur.close()
+
+    return redirect('/manage-users')
 
 @app.route('/engineer-dashboard')
 def engineer_dashboard():

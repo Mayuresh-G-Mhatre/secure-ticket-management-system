@@ -599,7 +599,7 @@ body{
                             </div>
 
                             <div class="value">
-                                {{ ticket[12] if ticket[12] else 'Unassigned' }}
+                                {{ ticket[-1] if ticket[-1] else 'Unassigned' }}
                             </div>
 
                         </div>
