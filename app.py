@@ -21,7 +21,7 @@ app.secret_key = 'stms_secret_key'
 
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'Mac@2520'
+app.config['MYSQL_PASSWORD'] = '<password>'
 app.config['MYSQL_DB'] = 'stms_db'
 
 mysql = MySQL(app)
