@@ -1,39 +1,47 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
+<meta charset="UTF-8">
+<meta name="viewport"content="width=device-width, initial-scale=1.0">
+<title>Reports - STMS</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-    <meta charset="UTF-8">
+:root {
+  --navy:       #0b1628;
+  --navy-2:     #111f35;
+  --navy-3:     #172640;
+  --navy-4:     #1e3050;
+  --gold:       #c9a84c;
+  --gold-lt:    #e4c97e;
+  --gold-dim:   rgba(201,168,76,0.15);
+  --cream:      #f7f4ee;
+  --surface:    #ffffff;
+  --border:     rgba(255,255,255,0.06);
+  --border-lt:  #e8e2d8;
+  --text-1:     #0b1628;
+  --text-2:     #4a5568;
+  --text-3:     #8a9ab0;
+  --text-inv:   rgba(255,255,255,0.9);
+  --text-muted: rgba(255,255,255,0.45);
+  --red:        #e05c5c;
+  --amber:      #d97706;
+  --green:      #16a34a;
+  --blue:       #2563eb;
+  --sidebar-w: 268px;
+}
 
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+html, body { height: 100%; }
 
-    <title>Reports - STMS</title>
-
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
-          rel="stylesheet">
-
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-    <style>
-
-        *{
-            margin:0;
-            padding:0;
-            box-sizing:border-box;
-            font-family:'Inter',sans-serif;
-        }
-
-        body{
-            background:#f7f4ee;
-            display:flex;
-            color:#0f172a;
-        }
-
-        a{
-            text-decoration:none;
-        }
-
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--cream);
+  display: flex;
+  min-height: 100vh;
+  overflow: hidden;
+}
         /* =================================
            SIDEBAR
         ================================= */
@@ -304,6 +312,49 @@
 
         .logout-btn:hover{
             background:rgba(224,92,92,0.08);
+        }
+
+        /* =================================
+           MAIN
+        ================================= */
+
+        .main{
+            margin-left:268px;
+            width:calc(100% - 268px);
+            padding:28px;
+        }
+
+        .topbar{
+            display:flex;
+            justify-content:space-between;
+            align-items:flex-start;
+            margin-bottom:26px;
+        }
+
+        .page-title h1{
+            font-size:34px;
+            font-weight:800;
+            margin-bottom:6px;
+        }
+
+        .breadcrumb{
+            font-size:12px;
+            color:#94a3b8;
+        }
+
+        .breadcrumb span{
+            color:#d4a72c;
+            font-weight:600;
+        }
+
+        .date-pill{
+            background:white;
+            border:1px solid #e7e0d6;
+            border-radius:12px;
+            padding:11px 16px;
+            font-size:12px;
+            color:#94a3b8;
+            font-weight:500;
         }
 
         /* =================================
@@ -973,11 +1024,11 @@
                 datasets: [{
 
                     data: [
-                        {{ open_tickets }},
-                        {{ in_progress_tickets }},
-                        {{ resolved_tickets }},
-                        {{ closed_tickets }}
-                    ],
+                            {{ open_tickets|tojson }},
+                            {{ in_progress_tickets|tojson }},
+                            {{ resolved_tickets|tojson }},
+                            {{ closed_tickets|tojson }}
+                        ],
 
                     backgroundColor: [
                         '#ef4444',

@@ -1,10 +1,12 @@
 import os
+from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
 from flask import send_from_directory
 from flask import Flask, render_template, request, redirect, session
 from flask_mysqldb import MySQL
 
 app = Flask(__name__)
+load_dotenv()
 UPLOAD_FOLDER = 'uploads'
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
@@ -21,7 +23,7 @@ app.secret_key = 'stms_secret_key'
 
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = '<password>'
+app.config['MYSQL_PASSWORD'] = os.getenv('MYSQL_PASSWORD')
 app.config['MYSQL_DB'] = 'stms_db'
 
 mysql = MySQL(app)
