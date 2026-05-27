@@ -306,6 +306,14 @@ def view_ticket(ticket_id):
 
     cur = mysql.connection.cursor()
 
+    cur.execute("""
+        SELECT * FROM ticket_notes
+        WHERE ticket_id=%s
+        ORDER BY created_at DESC
+    """, (ticket_id,))
+
+    notes = cur.fetchall()
+
     # -------------------------
     # FETCH TICKET
     # -------------------------
@@ -336,12 +344,16 @@ def view_ticket(ticket_id):
     engineers = cur.fetchall()
 
     cur.close()
+    
 
     return render_template(
-        'view_ticket.html',
-        ticket=ticket,
-        engineers=engineers
-    )
+    'view_ticket.html',
+    ticket=ticket,
+    engineers=engineers,
+    notes=notes
+)
+
+
 
 @app.route('/update-status/<int:ticket_id>', methods=['POST'])
 def update_status(ticket_id):
@@ -720,6 +732,32 @@ def delete_user(user_id):
     cur.close()
 
     return redirect('/manage-users')
+
+@app.route('/add-note/<int:ticket_id>', methods=['POST'])
+def add_note(ticket_id):
+
+    if 'user_id' not in session:
+        return redirect('/')
+
+    note = request.form['note']
+
+    if note.strip() == '':
+        return redirect(f'/view-ticket/{ticket_id}')
+
+    cursor = mysql.connection.cursor()
+
+    cursor.execute("""
+        INSERT INTO ticket_notes (ticket_id, user_name, note)
+        VALUES (%s, %s, %s)
+    """, (
+        ticket_id,
+        session['name'],
+        note
+    ))
+
+    mysql.connection.commit()
+
+    return redirect(f'/view-ticket/{ticket_id}')
 
 @app.route('/engineer-dashboard')
 def engineer_dashboard():

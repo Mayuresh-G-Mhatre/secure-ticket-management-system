@@ -776,6 +776,111 @@ td {
   animation: fadeUp 0.5s 0.35s ease both;
 }
 
+.integrations-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(260px,1fr));
+    gap:20px;
+    padding:24px;
+}
+
+.integration-box{
+    background:white;
+    border:1px solid #ece7df;
+    border-radius:18px;
+    padding:20px;
+    transition:0.25s ease;
+}
+
+.integration-box:hover{
+    transform:translateY(-4px);
+    box-shadow:0 10px 24px rgba(15,23,42,0.08);
+}
+
+.integration-top{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom:18px;
+}
+
+.integration-icon{
+    width:52px;
+    height:52px;
+    border-radius:14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:700;
+    color:white;
+    font-size:18px;
+}
+
+.jira-icon{
+    background:#2563eb;
+}
+
+.basecamp-icon{
+    background:#16a34a;
+}
+
+.mail-icon{
+    background:#ea580c;
+}
+
+.slack-icon{
+    background:#7c3aed;
+}
+
+.integration-name{
+    font-size:15px;
+    font-weight:700;
+    color:#0f172a;
+}
+
+.integration-status{
+    font-size:12px;
+    margin-top:4px;
+    font-weight:600;
+}
+
+.connected{
+    color:#16a34a;
+}
+
+.active-mail{
+    color:#ea580c;
+}
+
+.optional{
+    color:#7c3aed;
+}
+
+.integration-footer{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+}
+
+.sync-text{
+    font-size:12px;
+    color:#94a3b8;
+}
+
+.integration-btn{
+    text-decoration:none;
+    background:#0f172a;
+    color:white;
+    padding:8px 14px;
+    border-radius:10px;
+    font-size:12px;
+    font-weight:600;
+    transition:0.2s ease;
+}
+
+.integration-btn:hover{
+    background:#1e293b;
+}
+
 /* Engineer performance cards */
 .engineer-item {
   display: flex;
@@ -1449,8 +1554,187 @@ input:checked + .slider:before{
 
   </div>
 
- </div>
+<!-- WORKSPACE INTEGRATIONS -->
+
+<div class="panel" style="margin-top:24px;">
+
+    <div class="panel-header">
+
+        <div class="panel-title">
+            <div class="panel-title-dot"></div>
+            <h3>Workspace Integrations</h3>
+        </div>
+
+    </div>
+
+    <div class="integrations-grid">
+
+        <!-- JIRA -->
+
+        <div class="integration-box">
+
+            <div class="integration-top">
+
+                <div class="integration-icon jira-icon">
+                    J
+                </div>
+
+                <div>
+                    <div class="integration-name">
+                        Jira
+                    </div>
+
+                    <div class="integration-status connected">
+                        Connected
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="integration-footer">
+
+                <span class="sync-text">
+                    Last synced 2 mins ago
+                </span>
+
+                <a href="https://jira.com"
+                   target="_blank"
+                   class="integration-btn">
+
+                    Open
+
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- BASECAMP -->
+
+        <div class="integration-box">
+
+            <div class="integration-top">
+
+                <div class="integration-icon basecamp-icon">
+                    B
+                </div>
+
+                <div>
+                    <div class="integration-name">
+                        Basecamp
+                    </div>
+
+                    <div class="integration-status connected">
+                        Connected
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="integration-footer">
+
+                <span class="sync-text">
+                    Active workspace
+                </span>
+
+                <a href="https://basecamp.com"
+                   target="_blank"
+                   class="integration-btn">
+
+                    Open
+
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- SUPPORT MAIL -->
+
+        <div class="integration-box">
+
+            <div class="integration-top">
+
+                <div class="integration-icon mail-icon">
+                    ✉
+                </div>
+
+                <div>
+                    <div class="integration-name">
+                        Support Mailbox
+                    </div>
+
+                    <div class="integration-status active-mail">
+                        Active
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="integration-footer">
+
+                <span class="sync-text">
+                    support@stms.com
+                </span>
+
+                <a href="https://mail.google.com"
+                   target="_blank"
+                   class="integration-btn">
+
+                    Open
+
+                </a>
+
+            </div>
+
+        </div>
+
+        <!-- SLACK -->
+
+        <div class="integration-box">
+
+            <div class="integration-top">
+
+                <div class="integration-icon slack-icon">
+                    S
+                </div>
+
+                <div>
+                    <div class="integration-name">
+                        Slack Workspace
+                    </div>
+
+                    <div class="integration-status optional">
+                        Optional
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="integration-footer">
+
+                <span class="sync-text">
+                    Internal communication
+                </span>
+
+                <a href="https://slack.com"
+                   target="_blank"
+                   class="integration-btn">
+
+                    Open
+
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+
 </div>
+</div>
+</div>
+
 <script>
 
 const d = new Date();
