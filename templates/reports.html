@@ -40,7 +40,8 @@ body {
   background: var(--cream);
   display: flex;
   min-height: 100vh;
-  overflow: hidden;
+  color:var(--navy);
+  overflow-y:auto;
 }
         /* =================================
            SIDEBAR
@@ -322,6 +323,7 @@ body {
             margin-left:268px;
             width:calc(100% - 268px);
             padding:28px;
+            min-height:100vh;
         }
 
         .topbar{
@@ -365,6 +367,7 @@ body {
             margin-left:268px;
             width:calc(100% - 268px);
             padding:28px;
+            min-height:100vh;
         }
 
         .topbar{
@@ -874,6 +877,46 @@ body {
                     <h2>Engineer Performance</h2>
 
                 </div>
+
+                <form method="GET" action="/reports">
+
+    <select
+        name="engineer_id"
+        onchange="this.form.submit()"
+        style="
+            padding:12px 14px;
+            border-radius:12px;
+            border:1px solid #d6d3d1;
+            font-size:14px;
+            background:white;
+            font-weight:600;
+            cursor:pointer;
+            min-width:220px;
+        "
+    >
+
+        <option value="">
+            All Engineers
+        </option>
+
+        {% for engineer in engineers %}
+
+        <option
+            value="{{ engineer[0] }}"
+            {% if selected_engineer == engineer[0]|string %}
+                selected
+            {% endif %}
+        >
+
+            {{ engineer[1] }}
+
+        </option>
+
+        {% endfor %}
+
+    </select>
+
+</form>
 
                 <div class="panel-content">
 

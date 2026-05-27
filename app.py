@@ -93,64 +93,63 @@ def login():
 def admin_dashboard():
 
     search = request.args.get('search')
+    status_filter = request.args.get('status')
 
     cur = mysql.connection.cursor()
 
     # -------------------------
-    # FETCH / SEARCH TICKETS
+    # FETCH / SEARCH / FILTER
     # -------------------------
+
+    query = """
+        SELECT
+            tickets.ticket_id,
+            tickets.ticket_number,
+            tickets.title,
+            tickets.priority,
+            tickets.status,
+            users.full_name
+
+        FROM tickets
+
+        LEFT JOIN users
+        ON tickets.assigned_to = users.id
+
+        WHERE tickets.is_archived = 0
+    """
+
+    params = []
+
+    # SEARCH
 
     if search:
 
-        query = """
-            SELECT
-        tickets.ticket_id,
-        tickets.ticket_number,
-        tickets.title,
-        tickets.priority,
-        tickets.status,
-        users.full_name
-
-    FROM tickets
-
-    LEFT JOIN users
-    ON tickets.assigned_to = users.id
-
-    WHERE tickets.is_archived = 0
-    AND (
-        tickets.ticket_number LIKE %s
-        OR tickets.title LIKE %s
-    )
-
-    ORDER BY tickets.created_at DESC
+        query += """
+            AND (
+                tickets.ticket_number LIKE %s
+                OR tickets.title LIKE %s
+            )
         """
 
         search_term = f"%{search}%"
 
-        cur.execute(query, (search_term, search_term))
+        params.extend([search_term, search_term])
 
-    else:
+    # STATUS FILTER
 
-        query = """
-           SELECT
-        tickets.ticket_id,
-        tickets.ticket_number,
-        tickets.title,
-        tickets.priority,
-        tickets.status,
-        users.full_name
+    if status_filter:
 
-    FROM tickets
-
-    LEFT JOIN users
-    ON tickets.assigned_to = users.id
-
-    WHERE tickets.is_archived = 0
-
-    ORDER BY tickets.created_at DESC
+        query += """
+            AND tickets.status = %s
         """
 
-        cur.execute(query)
+        params.append(status_filter)
+
+    query += """
+        ORDER BY tickets.created_at DESC
+    """
+
+    cur.execute(query, tuple(params))
 
     tickets = cur.fetchall()
 
@@ -187,6 +186,7 @@ def admin_dashboard():
     return render_template(
     'admin_dashboard.html',
     tickets=tickets,
+    status_filter=status_filter,
     total_tickets=total_tickets,
     open_tickets=open_tickets,
     in_progress_tickets=in_progress_tickets,
@@ -457,22 +457,49 @@ def reports():
 
     cur = mysql.connection.cursor()
 
+    engineer_id = request.args.get('engineer_id')
+
     # -------------------------
     # TOTAL TICKETS
     # -------------------------
 
-    cur.execute("SELECT COUNT(*) FROM tickets")
+    if engineer_id:
+
+        cur.execute("""
+            SELECT COUNT(*)
+            FROM tickets
+            WHERE assigned_to=%s
+        """, (engineer_id,))
+
+    else:
+
+        cur.execute("""
+            SELECT COUNT(*)
+            FROM tickets
+        """)
+
     total_tickets = cur.fetchone()[0]
 
     # -------------------------
     # OPEN
     # -------------------------
 
-    cur.execute("""
-        SELECT COUNT(*)
-        FROM tickets
-        WHERE status='Open'
-    """)
+    if engineer_id:
+
+        cur.execute("""
+            SELECT COUNT(*)
+            FROM tickets
+            WHERE assigned_to=%s
+            AND status='Open'
+        """, (engineer_id,))
+
+    else:
+
+        cur.execute("""
+            SELECT COUNT(*)
+            FROM tickets
+            WHERE status='Open'
+        """)
 
     open_tickets = cur.fetchone()[0]
 
@@ -480,11 +507,22 @@ def reports():
     # IN PROGRESS
     # -------------------------
 
-    cur.execute("""
-        SELECT COUNT(*)
-        FROM tickets
-        WHERE status='In Progress'
-    """)
+    if engineer_id:
+
+        cur.execute("""
+            SELECT COUNT(*)
+            FROM tickets
+            WHERE assigned_to=%s
+            AND status='In Progress'
+        """, (engineer_id,))
+
+    else:
+
+        cur.execute("""
+            SELECT COUNT(*)
+            FROM tickets
+            WHERE status='In Progress'
+        """)
 
     in_progress_tickets = cur.fetchone()[0]
 
@@ -492,11 +530,22 @@ def reports():
     # RESOLVED
     # -------------------------
 
-    cur.execute("""
-        SELECT COUNT(*)
-        FROM tickets
-        WHERE status='Resolved'
-    """)
+    if engineer_id:
+
+        cur.execute("""
+            SELECT COUNT(*)
+            FROM tickets
+            WHERE assigned_to=%s
+            AND status='Resolved'
+        """, (engineer_id,))
+
+    else:
+
+        cur.execute("""
+            SELECT COUNT(*)
+            FROM tickets
+            WHERE status='Resolved'
+        """)
 
     resolved_tickets = cur.fetchone()[0]
 
@@ -504,23 +553,45 @@ def reports():
     # CLOSED
     # -------------------------
 
-    cur.execute("""
-        SELECT COUNT(*)
-        FROM tickets
-        WHERE status='Closed'
-    """)
+    if engineer_id:
+
+        cur.execute("""
+            SELECT COUNT(*)
+            FROM tickets
+            WHERE assigned_to=%s
+            AND status='Closed'
+        """, (engineer_id,))
+
+    else:
+
+        cur.execute("""
+            SELECT COUNT(*)
+            FROM tickets
+            WHERE status='Closed'
+        """)
 
     closed_tickets = cur.fetchone()[0]
 
     # -------------------------
-    # CRITICAL TICKETS
+    # CRITICAL
     # -------------------------
 
-    cur.execute("""
-        SELECT COUNT(*)
-        FROM tickets
-        WHERE priority='Critical'
-    """)
+    if engineer_id:
+
+        cur.execute("""
+            SELECT COUNT(*)
+            FROM tickets
+            WHERE assigned_to=%s
+            AND priority='Critical'
+        """, (engineer_id,))
+
+    else:
+
+        cur.execute("""
+            SELECT COUNT(*)
+            FROM tickets
+            WHERE priority='Critical'
+        """)
 
     critical_tickets = cur.fetchone()[0]
 
@@ -545,6 +616,18 @@ def reports():
 
     engineer_stats = cur.fetchall()
 
+    # -------------------------
+    # FETCH ENGINEERS
+    # -------------------------
+
+    cur.execute("""
+        SELECT id, full_name
+        FROM users
+        WHERE role='engineer'
+    """)
+
+    engineers = cur.fetchall()
+
     cur.close()
 
     return render_template(
@@ -556,7 +639,12 @@ def reports():
         resolved_tickets=resolved_tickets,
         closed_tickets=closed_tickets,
         critical_tickets=critical_tickets,
+
         engineer_stats=engineer_stats,
+
+        engineers=engineers,
+        selected_engineer=engineer_id,
+
         active_page='reports'
     )
 
@@ -751,7 +839,7 @@ def add_note(ticket_id):
         VALUES (%s, %s, %s)
     """, (
         ticket_id,
-        session['name'],
+        session['full_name'],
         note
     ))
 
