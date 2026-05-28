@@ -979,12 +979,20 @@ td {
       </div>
     </div>
     <div class="topbar-right">
-      <form method="GET" action="/admin-dashboard" style="display:flex;align-items:center;gap:8px;">
+      <form method="GET" action="/archived-tickets" style="display:flex;align-items:center;gap:8px;">
+
+    {% if status_filter %}
+    <input
+        type="hidden"
+        name="status"
+        value="{{ status_filter }}"
+    >
+    {% endif %}
 
     <input
         type="text"
         name="search"
-        placeholder="Search tickets..."
+        placeholder="Search archived tickets..."
         value="{{ search if search else '' }}"
         style="
             padding:10px 14px;
@@ -1123,7 +1131,13 @@ td {
           </div>
           <div class="panel-actions">
             <form method="GET" action="/archived-tickets">
-
+{% if search %}
+<input
+    type="hidden"
+    name="search"
+    value="{{ search }}"
+>
+{% endif %}
     <select
         name="status"
         onchange="this.form.submit()"

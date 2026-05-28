@@ -980,12 +980,18 @@ td {
       </div>
     </div>
     <div class="topbar-right">
-      <form method="GET" action="/admin-dashboard" style="display:flex;align-items:center;gap:8px;">
-
+      <form method="GET" action="/unassigned-tickets" style="display:flex;align-items:center;gap:8px;">
+{% if priority_filter %}
+<input
+    type="hidden"
+    name="priority"
+    value="{{ priority_filter }}"
+>
+{% endif %}
     <input
         type="text"
         name="search"
-        placeholder="Search tickets..."
+        placeholder="Search unassigned tickets..."
         value="{{ search if search else '' }}"
         style="
             padding:10px 14px;

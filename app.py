@@ -126,14 +126,15 @@ def admin_dashboard():
 
         query += """
             AND (
-                tickets.ticket_number LIKE %s
-                OR tickets.title LIKE %s
-            )
+    tickets.ticket_number LIKE %s
+    OR tickets.title LIKE %s
+    OR users.full_name LIKE %s
+)
         """
 
         search_term = f"%{search}%"
 
-        params.extend([search_term, search_term])
+        params.extend([search_term, search_term,search_term])
 
     # STATUS FILTER
 
@@ -200,22 +201,21 @@ def unassigned_tickets():
 
     cur = mysql.connection.cursor()
     priority_filter = request.args.get('priority')
+    search = request.args.get('search')
 
     query = """
+        SELECT
+            ticket_id,
+            ticket_number,
+            title,
+            priority,
+            status
 
-    SELECT
-        ticket_id,
-        ticket_number,
-        title,
-        priority,
-        status
+        FROM tickets
 
-    FROM tickets
-
-    WHERE assigned_to IS NULL
-    AND is_archived = 0
-
-"""
+        WHERE assigned_to IS NULL
+        AND is_archived = 0
+    """
 
     params = []
 
@@ -229,6 +229,24 @@ def unassigned_tickets():
 
         params.append(priority_filter)
 
+    # SEARCH
+
+    if search:
+
+        query += """
+            AND (
+                ticket_number LIKE %s
+                OR title LIKE %s
+            )
+        """
+
+        search_term = f"%{search}%"
+
+        params.extend([
+            search_term,
+            search_term
+        ])
+
     query += """
         ORDER BY created_at DESC
     """
@@ -236,12 +254,12 @@ def unassigned_tickets():
     cur.execute(query, tuple(params))
 
     tickets = cur.fetchall()
-
     cur.close()
 
     return render_template(
         'unassigned_tickets.html',
         tickets=tickets,
+        search=search,
         priority_filter=priority_filter,
         active_page='unassigned_tickets'
     )
@@ -435,6 +453,7 @@ def archived_tickets():
 
     cur = mysql.connection.cursor()
     status_filter = request.args.get('status')
+    search = request.args.get('search')
 
     query = """
 
@@ -453,7 +472,7 @@ def archived_tickets():
 
     WHERE tickets.is_archived = 1
 
-    """
+"""
 
     params = []
 
@@ -466,6 +485,26 @@ def archived_tickets():
         """
 
         params.append(status_filter)
+
+    # SEARCH
+
+    if search:
+
+        query += """
+            AND (
+                tickets.ticket_number LIKE %s
+                OR tickets.title LIKE %s
+                OR users.full_name LIKE %s
+            )
+        """
+
+        search_term = f"%{search}%"
+
+        params.extend([
+            search_term,
+            search_term,
+            search_term
+        ])
 
     query += """
         ORDER BY tickets.created_at DESC
@@ -480,6 +519,7 @@ def archived_tickets():
     return render_template(
         'archived_tickets.html',
         tickets=tickets,
+        search=search,
         status_filter=status_filter,
         active_page='archived_tickets'
     )
@@ -767,27 +807,44 @@ def restore_ticket(ticket_id):
 def manage_users():
 
     cur = mysql.connection.cursor()
+    role_filter = request.args.get('role')
 
     query = """
         SELECT
-            id,
-            full_name,
-            username,
-            email,
-            role
-        FROM users
+        id,
+        full_name,
+        username,
+        email,
+        role
+
+    FROM users
+"""
+
+    params = []
+
+    # ROLE FILTER
+
+    if role_filter:
+
+        query += """
+            WHERE role=%s
+        """
+
+        params.append(role_filter)
+
+    query += """
         ORDER BY id DESC
     """
 
-    cur.execute(query)
+    cur.execute(query, tuple(params))
 
     users = cur.fetchall()
-
     cur.close()
 
     return render_template(
         'manage_users.html',
         users=users,
+        role_filter=role_filter,
         active_page='manage_users'
     )
 
@@ -886,13 +943,13 @@ def engineer_dashboard():
 
     cur = mysql.connection.cursor()
     status_filter = request.args.get('status')
+    search = request.args.get('search')
 
     # -------------------------
     # FETCH ASSIGNED TICKETS
     # -------------------------
 
     query = """
-
     SELECT
         ticket_id,
         ticket_number,
@@ -904,8 +961,7 @@ def engineer_dashboard():
 
     WHERE assigned_to=%s
     AND is_archived=0
-
-"""
+    """
 
     params = [session['user_id']]
 
@@ -918,6 +974,24 @@ def engineer_dashboard():
         """
 
         params.append(status_filter)
+
+    # SEARCH
+
+    if search:
+
+        query += """
+            AND (
+                ticket_number LIKE %s
+                OR title LIKE %s
+            )
+        """
+
+        search_term = f"%{search}%"
+
+        params.extend([
+            search_term,
+            search_term
+        ])
 
     query += """
         ORDER BY created_at DESC
@@ -972,8 +1046,8 @@ def engineer_dashboard():
         'engineer_dashboard.html',
 
         tickets=tickets,
+        search=search,
         status_filter=status_filter,
-
         total_assigned=total_assigned,
         resolved_tickets=resolved_tickets,
         in_progress_tickets=in_progress_tickets

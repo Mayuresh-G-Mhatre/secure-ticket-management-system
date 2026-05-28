@@ -998,6 +998,7 @@ td {
 
     <!-- MAIN ROW: TABLE + SIDE PANELS -->
     <div class="content-row">
+  
 
       <!-- RECENT TICKETS TABLE -->
       <div class="panel">
@@ -1007,6 +1008,55 @@ td {
             <h2>System Users</h2>
           </div>
           <div class="panel-actions">
+            <form method="GET" action="/manage-users">
+
+    <select
+        name="role"
+        onchange="this.form.submit()"
+        style="
+            padding:0 14px;
+            border-radius:10px;
+            border:none;
+            background:linear-gradient(135deg,#0f172a,#1e293b);
+            color: var(--gold-lt);
+            font-size:12px;
+            font-weight:600;
+            cursor:pointer;
+            height:32px;
+            min-width:130px;
+            outline:none;
+            box-shadow:0 4px 12px rgba(15,23,42,0.12);
+        "
+    >
+
+        <option value="" style="color:black;">
+            All Users
+        </option>
+
+        <option value="admin"
+            {% if role_filter == 'admin' %}selected{% endif %}
+            style="color:black;"
+        >
+            Admin
+        </option>
+
+        <option value="manager"
+            {% if role_filter == 'manager' %}selected{% endif %}
+            style="color:black;"
+        >
+            Manager
+        </option>
+
+        <option value="engineer"
+            {% if role_filter == 'engineer' %}selected{% endif %}
+            style="color:black;"
+        >
+            Engineer
+        </option>
+
+    </select>
+
+</form>
           <a href="/add-user"
    class="btn-sm btn-primary"
    style="
