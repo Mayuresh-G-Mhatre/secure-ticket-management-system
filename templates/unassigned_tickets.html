@@ -1123,7 +1123,62 @@ td {
             <h2>Unassigned Tickets</h2>
           </div>
           <div class="panel-actions">
-            <button class="btn-sm btn-outline">Filter</button>
+            <form method="GET" action="/unassigned-tickets">
+
+    <select
+        name="priority"
+        onchange="this.form.submit()"
+        style="
+            padding:0 14px;
+            border-radius:10px;
+            border:none;
+            background:linear-gradient(135deg,#0f172a,#1e293b);
+            color: var(--gold-lt);
+            font-size:12px;
+            font-weight:600;
+            cursor:pointer;
+            height:32px;
+            min-width:130px;
+            outline:none;
+            box-shadow:0 4px 12px rgba(15,23,42,0.12);
+        "
+    >
+
+        <option value="" style="color:black;">
+            All Priority
+        </option>
+
+        <option value="Critical"
+            {% if priority_filter == 'Critical' %}selected{% endif %}
+            style="color:black;"
+        >
+            Critical
+        </option>
+
+        <option value="High"
+            {% if priority_filter == 'High' %}selected{% endif %}
+            style="color:black;"
+        >
+            High
+        </option>
+
+        <option value="Medium"
+            {% if priority_filter == 'Medium' %}selected{% endif %}
+            style="color:black;"
+        >
+            Medium
+        </option>
+
+        <option value="Low"
+            {% if priority_filter == 'Low' %}selected{% endif %}
+            style="color:black;"
+        >
+            Low
+        </option>
+
+    </select>
+
+</form>
           <a href="/create-ticket" class="btn-sm btn-gold" style="text-decoration:none;">
     + New Ticket
 </a>

@@ -199,28 +199,41 @@ def admin_dashboard():
 def unassigned_tickets():
 
     cur = mysql.connection.cursor()
+    priority_filter = request.args.get('priority')
 
     query = """
-        SELECT
-            tickets.ticket_id,
-            tickets.ticket_number,
-            tickets.title,
-            tickets.priority,
-            tickets.status,
-            users.full_name
 
-        FROM tickets
+    SELECT
+        ticket_id,
+        ticket_number,
+        title,
+        priority,
+        status
 
-        LEFT JOIN users
-        ON tickets.assigned_to = users.id
+    FROM tickets
 
-        WHERE tickets.assigned_to IS NULL
-        AND tickets.is_archived = 0
+    WHERE assigned_to IS NULL
+    AND is_archived = 0
 
-        ORDER BY tickets.created_at DESC
+"""
+
+    params = []
+
+    # PRIORITY FILTER
+
+    if priority_filter:
+
+        query += """
+            AND priority=%s
+        """
+
+        params.append(priority_filter)
+
+    query += """
+        ORDER BY created_at DESC
     """
 
-    cur.execute(query)
+    cur.execute(query, tuple(params))
 
     tickets = cur.fetchall()
 
@@ -229,6 +242,7 @@ def unassigned_tickets():
     return render_template(
         'unassigned_tickets.html',
         tickets=tickets,
+        priority_filter=priority_filter,
         active_page='unassigned_tickets'
     )
 
@@ -420,37 +434,55 @@ def archive_ticket(ticket_id):
 def archived_tickets():
 
     cur = mysql.connection.cursor()
+    status_filter = request.args.get('status')
 
     query = """
-        SELECT
-            tickets.ticket_id,
-            tickets.ticket_number,
-            tickets.title,
-            tickets.priority,
-            tickets.status,
-            users.full_name
 
-        FROM tickets
+    SELECT
+        tickets.ticket_id,
+        tickets.ticket_number,
+        tickets.title,
+        tickets.priority,
+        tickets.status,
+        users.full_name
 
-        LEFT JOIN users
-        ON tickets.assigned_to = users.id
+    FROM tickets
 
-        WHERE tickets.is_archived = 1
+    LEFT JOIN users
+    ON tickets.assigned_to = users.id
 
+    WHERE tickets.is_archived = 1
+
+    """
+
+    params = []
+
+    # STATUS FILTER
+
+    if status_filter:
+
+        query += """
+            AND tickets.status=%s
+        """
+
+        params.append(status_filter)
+
+    query += """
         ORDER BY tickets.created_at DESC
     """
 
-    cur.execute(query)
+    cur.execute(query, tuple(params))
 
     tickets = cur.fetchall()
 
     cur.close()
 
     return render_template(
-    'archived_tickets.html',
-    tickets=tickets,
-    active_page='archived_tickets'
-)
+        'archived_tickets.html',
+        tickets=tickets,
+        status_filter=status_filter,
+        active_page='archived_tickets'
+    )
 
 @app.route('/reports')
 def reports():
@@ -853,28 +885,45 @@ def engineer_dashboard():
     engineer_id = session.get('user_id')
 
     cur = mysql.connection.cursor()
+    status_filter = request.args.get('status')
 
     # -------------------------
     # FETCH ASSIGNED TICKETS
     # -------------------------
 
     query = """
-        SELECT
-            ticket_id,
-            ticket_number,
-            title,
-            priority,
-            status
 
-        FROM tickets
+    SELECT
+        ticket_id,
+        ticket_number,
+        title,
+        priority,
+        status
 
-        WHERE assigned_to = %s
-        AND is_archived = 0
+    FROM tickets
 
+    WHERE assigned_to=%s
+    AND is_archived=0
+
+"""
+
+    params = [session['user_id']]
+
+    # STATUS FILTER
+
+    if status_filter:
+
+        query += """
+            AND status=%s
+        """
+
+        params.append(status_filter)
+
+    query += """
         ORDER BY created_at DESC
     """
 
-    cur.execute(query, (engineer_id,))
+    cur.execute(query, tuple(params))
 
     tickets = cur.fetchall()
 
@@ -923,6 +972,7 @@ def engineer_dashboard():
         'engineer_dashboard.html',
 
         tickets=tickets,
+        status_filter=status_filter,
 
         total_assigned=total_assigned,
         resolved_tickets=resolved_tickets,

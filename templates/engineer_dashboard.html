@@ -832,7 +832,55 @@ td {
           <h2>Assigned Tickets</h2>
         </div>
         <div class="panel-actions">
-          <button class="btn-sm btn-outline">Filter</button>
+          <form method="GET" action="/engineer-dashboard">
+
+    <select
+        name="status"
+        onchange="this.form.submit()"
+        style="
+            padding:0 14px;
+            border-radius:10px;
+            border:none;
+            background:linear-gradient(135deg,#0f172a,#1e293b);
+            color: var(--gold-lt);
+            font-size:12px;
+            font-weight:600;
+            cursor:pointer;
+            height:32px;
+            min-width:130px;
+            outline:none;
+            box-shadow:0 4px 12px rgba(15,23,42,0.12);
+        "
+    >
+
+        <option value="" style="color:black;">
+            All Tickets
+        </option>
+
+        <option value="Open"
+            {% if status_filter == 'Open' %}selected{% endif %}
+            style="color:black;"
+        >
+            Open
+        </option>
+
+        <option value="In Progress"
+            {% if status_filter == 'In Progress' %}selected{% endif %}
+            style="color:black;"
+        >
+            In Progress
+        </option>
+
+        <option value="Resolved"
+            {% if status_filter == 'Resolved' %}selected{% endif %}
+            style="color:black;"
+        >
+            Resolved
+        </option>
+
+    </select>
+
+</form>
         </div>
       </div>
       <div class="table-wrap">
