@@ -494,6 +494,30 @@ textarea{
 
                 </div>
 
+                <div class="form-group">
+
+    <label>Project</label>
+
+    <select name="project_id" required>
+
+        <option value="">
+            Select Project
+        </option>
+
+        {% for project in projects %}
+
+        <option value="{{ project[0] }}">
+
+            {{ project[1] }}
+
+        </option>
+
+        {% endfor %}
+
+    </select>
+
+</div>
+
                 <!-- FILE UPLOAD -->
 
                 <div class="form-group">

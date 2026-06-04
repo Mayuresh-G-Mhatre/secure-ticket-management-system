@@ -266,8 +266,39 @@ def unassigned_tickets():
 
 @app.route('/create-ticket', methods=['GET', 'POST'])
 def create_ticket():
-    
     cur = mysql.connection.cursor()
+
+    # -------------------------
+    # FETCH PROJECTS
+    # -------------------------
+    if session.get('role') == 'manager':
+        cur.execute("""
+
+            SELECT projects.id,
+                   projects.project_name
+
+            FROM user_projects
+
+            JOIN projects
+            ON user_projects.project_id = projects.id
+
+            WHERE user_projects.user_id = %s
+
+            ORDER BY projects.project_name ASC
+
+        """, (session.get('user_id'),))
+        projects = cur.fetchall()
+    else:
+        cur.execute("""
+
+            SELECT id, project_name
+
+            FROM projects
+
+            ORDER BY project_name ASC
+
+        """)
+        projects = cur.fetchall()
 
     # Generate next ticket number
     cur.execute("SELECT COUNT(*) FROM tickets")
@@ -281,6 +312,7 @@ def create_ticket():
         description = request.form['description']
         category = request.form['category']
         priority = request.form['priority']
+        project_id = request.form['project_id']
         attachment = request.files['attachment']
 
         filename = None
@@ -300,11 +332,12 @@ def create_ticket():
             INSERT INTO tickets
             (ticket_number, title, description,
              category, priority, status,
-             created_by, assigned_to,attachment)
+             created_by, assigned_to,
+            attachment, project_id)
 
             VALUES (%s, %s, %s,
                     %s, %s, %s,
-                    %s, %s, %s)
+                    %s, %s, %s, %s)
         """
 
         values = (
@@ -316,7 +349,8 @@ def create_ticket():
             'Open',
             4,
             2,
-            filename
+            filename,
+            project_id
         )
 
         cur.execute(query, values)
@@ -325,12 +359,16 @@ def create_ticket():
 
         cur.close()
 
+        if session.get('role') == 'manager':
+            return redirect('/manager-dashboard')
+
         return redirect('/admin-dashboard')
 
     return render_template(
         'create_ticket.html',
         next_ticket_number=next_ticket_number,
-        full_name=session.get('full_name')
+        full_name=session.get('full_name'),
+        projects=projects
     )
 
 @app.route('/ticket/<int:ticket_id>')
@@ -1055,7 +1093,176 @@ def engineer_dashboard():
 
 @app.route('/manager-dashboard')
 def manager_dashboard():
-    return "<h1>Manager Dashboard</h1>"
+
+    # -------------------------
+    # MANAGER SESSION CHECK
+    # -------------------------
+
+    if session.get('role') != 'manager':
+
+        return redirect('/')
+
+    cur = mysql.connection.cursor()
+
+    manager_id = session.get('user_id')
+
+    # -------------------------
+    # FETCH MANAGER PROJECTS
+    # -------------------------
+
+    cur.execute("""
+
+        SELECT projects.id,
+               projects.project_name
+
+        FROM user_projects
+
+        JOIN projects
+        ON user_projects.project_id = projects.id
+
+        WHERE user_projects.user_id = %s
+
+    """, (manager_id,))
+
+    projects = cur.fetchall()
+
+    # -------------------------
+    # PROJECT IDS
+    # -------------------------
+
+    project_ids = [project[0] for project in projects]
+
+    # -------------------------
+    # HANDLE EMPTY PROJECTS
+    # -------------------------
+
+    if not project_ids:
+
+        return render_template(
+            'manager_dashboard.html',
+            projects=[],
+            tickets=[],
+            total_tickets=0,
+            open_tickets=0,
+            in_progress_tickets=0,
+            resolved_tickets=0
+        )
+
+    placeholders = ','.join(['%s'] * len(project_ids))
+
+    # -------------------------
+    # TOTAL TICKETS
+    # -------------------------
+
+    cur.execute(f"""
+
+        SELECT COUNT(*)
+
+        FROM tickets
+
+        WHERE project_id IN ({placeholders})
+
+    """, tuple(project_ids))
+
+    total_tickets = cur.fetchone()[0]
+
+    # -------------------------
+    # OPEN TICKETS
+    # -------------------------
+
+    cur.execute(f"""
+
+        SELECT COUNT(*)
+
+        FROM tickets
+
+        WHERE status='Open'
+        AND project_id IN ({placeholders})
+
+    """, tuple(project_ids))
+
+    open_tickets = cur.fetchone()[0]
+
+    # -------------------------
+    # IN PROGRESS
+    # -------------------------
+
+    cur.execute(f"""
+
+        SELECT COUNT(*)
+
+        FROM tickets
+
+        WHERE status='In Progress'
+        AND project_id IN ({placeholders})
+
+    """, tuple(project_ids))
+
+    in_progress_tickets = cur.fetchone()[0]
+
+    # -------------------------
+    # RESOLVED
+    # -------------------------
+
+    cur.execute(f"""
+
+        SELECT COUNT(*)
+
+        FROM tickets
+
+        WHERE status='Resolved'
+        AND project_id IN ({placeholders})
+
+    """, tuple(project_ids))
+
+    resolved_tickets = cur.fetchone()[0]
+
+    # -------------------------
+    # RECENT TICKETS
+    # -------------------------
+
+    cur.execute(f"""
+
+        SELECT
+            tickets.ticket_number,
+            tickets.title,
+            tickets.priority,
+            tickets.status,
+            projects.project_name
+
+        FROM tickets
+
+        JOIN projects
+        ON tickets.project_id = projects.id
+
+        WHERE tickets.project_id IN ({placeholders})
+
+        ORDER BY tickets.created_at DESC
+
+        LIMIT 10
+
+    """, tuple(project_ids))
+
+    tickets = cur.fetchall()
+
+    cur.close()
+
+    return render_template(
+
+        'manager_dashboard.html',
+
+        projects=projects,
+
+        tickets=tickets,
+
+        total_tickets=total_tickets,
+
+        open_tickets=open_tickets,
+
+        in_progress_tickets=in_progress_tickets,
+
+        resolved_tickets=resolved_tickets
+    )
 
 @app.route('/customer-dashboard')
 def customer_dashboard():
