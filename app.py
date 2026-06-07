@@ -1105,7 +1105,8 @@ def manager_dashboard():
     cur = mysql.connection.cursor()
 
     manager_id = session.get('user_id')
-
+    search = request.args.get('search', '')
+    status_filter = request.args.get('status', '')
     # -------------------------
     # FETCH MANAGER PROJECTS
     # -------------------------
@@ -1221,14 +1222,229 @@ def manager_dashboard():
     # RECENT TICKETS
     # -------------------------
 
-    cur.execute(f"""
+    query = f"""
 
         SELECT
+            tickets.ticket_id,
             tickets.ticket_number,
             tickets.title,
             tickets.priority,
             tickets.status,
+            users.full_name,
             projects.project_name
+
+        FROM tickets
+
+        LEFT JOIN users
+        ON tickets.assigned_to = users.id
+
+        JOIN projects
+        ON tickets.project_id = projects.id
+
+        WHERE tickets.project_id IN ({placeholders})
+
+    """
+
+    params = list(project_ids)
+
+    # -------------------------
+    # SEARCH FILTER
+    # -------------------------
+
+    if search:
+
+        query += """
+
+            AND (
+
+                tickets.ticket_number LIKE %s
+                OR tickets.title LIKE %s
+                OR tickets.status LIKE %s
+                OR tickets.priority LIKE %s
+                OR users.full_name LIKE %s
+                OR projects.project_name LIKE %s
+
+            )
+
+        """
+
+        params.extend([
+
+            f"%{search}%",
+            f"%{search}%",
+            f"%{search}%",
+            f"%{search}%",
+            f"%{search}%",
+            f"%{search}%"
+
+        ])
+
+    # -------------------------
+    # STATUS FILTER
+    # -------------------------
+
+    if status_filter:
+
+        query += """
+
+            AND tickets.status = %s
+
+        """
+
+        params.append(status_filter)
+
+    # -------------------------
+    # ORDERING
+    # -------------------------
+
+    query += """
+
+        ORDER BY tickets.created_at DESC
+
+        LIMIT 10
+
+    """
+
+    cur.execute(query, tuple(params))
+
+    tickets = cur.fetchall()
+
+    cur.close()
+
+    return render_template(
+        'manager_dashboard.html',
+        search=search,
+        status_filter=status_filter,
+        projects=projects,
+        tickets=tickets,
+        total_tickets=total_tickets,
+        open_tickets=open_tickets,
+        in_progress_tickets=in_progress_tickets,
+        resolved_tickets=resolved_tickets
+    )
+
+@app.route('/manager-reports')
+def manager_reports():
+
+    if session.get('role') != 'manager':
+        return redirect('/')
+
+    cur = mysql.connection.cursor()
+
+    manager_id = session.get('user_id')
+
+    # MANAGER PROJECTS
+    cur.execute("""
+
+        SELECT project_id
+        FROM user_projects
+        WHERE user_id = %s
+
+    """, (manager_id,))
+
+    project_ids = [row[0] for row in cur.fetchall()]
+
+    if not project_ids:
+
+        return render_template(
+            'manager_reports.html',
+            status_data=[],
+            priority_data=[],
+            project_data=[]
+        )
+
+    placeholders = ','.join(['%s'] * len(project_ids))
+
+    # TOTAL TICKETS
+    cur.execute(f"""
+
+        SELECT COUNT(*)
+
+        FROM tickets
+
+        WHERE project_id IN ({placeholders})
+
+    """, tuple(project_ids))
+
+    total_tickets = cur.fetchone()[0]
+
+    # OPEN TICKETS
+    cur.execute(f"""
+
+        SELECT COUNT(*)
+
+        FROM tickets
+
+        WHERE status='Open'
+        AND project_id IN ({placeholders})
+
+    """, tuple(project_ids))
+
+    open_tickets = cur.fetchone()[0]
+
+    # IN PROGRESS
+    cur.execute(f"""
+
+        SELECT COUNT(*)
+
+        FROM tickets
+
+        WHERE status='In Progress'
+        AND project_id IN ({placeholders})
+
+    """, tuple(project_ids))
+
+    in_progress_tickets = cur.fetchone()[0]
+
+    # RESOLVED
+    cur.execute(f"""
+
+        SELECT COUNT(*)
+
+        FROM tickets
+
+        WHERE status='Resolved'
+        AND project_id IN ({placeholders})
+
+    """, tuple(project_ids))
+
+    resolved_tickets = cur.fetchone()[0]
+
+    # STATUS REPORT
+    cur.execute(f"""
+
+        SELECT status, COUNT(*)
+
+        FROM tickets
+
+        WHERE project_id IN ({placeholders})
+
+        GROUP BY status
+
+    """, tuple(project_ids))
+
+    status_data = cur.fetchall()
+
+    # PRIORITY REPORT
+    cur.execute(f"""
+
+        SELECT priority, COUNT(*)
+
+        FROM tickets
+
+        WHERE project_id IN ({placeholders})
+
+        GROUP BY priority
+
+    """, tuple(project_ids))
+
+    priority_data = cur.fetchall()
+
+    # PROJECT REPORT
+    cur.execute(f"""
+
+        SELECT projects.project_name,
+               COUNT(tickets.ticket_id)
 
         FROM tickets
 
@@ -1237,31 +1453,31 @@ def manager_dashboard():
 
         WHERE tickets.project_id IN ({placeholders})
 
-        ORDER BY tickets.created_at DESC
-
-        LIMIT 10
+        GROUP BY projects.project_name
 
     """, tuple(project_ids))
 
-    tickets = cur.fetchall()
+    project_data = cur.fetchall()
 
     cur.close()
 
     return render_template(
 
-        'manager_dashboard.html',
-
-        projects=projects,
-
-        tickets=tickets,
+        'manager_reports.html',
 
         total_tickets=total_tickets,
 
         open_tickets=open_tickets,
 
         in_progress_tickets=in_progress_tickets,
+        
+        resolved_tickets=resolved_tickets,
 
-        resolved_tickets=resolved_tickets
+        status_data=status_data,
+
+        priority_data=priority_data,
+
+        project_data=project_data
     )
 
 @app.route('/customer-dashboard')

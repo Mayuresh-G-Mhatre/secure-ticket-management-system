@@ -368,21 +368,45 @@ textarea{
 
     <div class="nav-links">
 
-        <a href="/admin-dashboard">
-            Dashboard
-        </a>
+        {% if session.role == 'manager' %}
+
+<a href="/manager-dashboard">
+    Dashboard
+</a>
+
+{% else %}
+
+<a href="/admin-dashboard">
+    Dashboard
+</a>
+
+{% endif %}
 
         <a href="#" class="active">
             Create Ticket
         </a>
 
-        <a href="#">
-            All Tickets
-        </a>
+        {% if session.role == 'manager' %}
 
-        <a href="#">
-            Reports
-        </a>
+<a href="/manager-dashboard">
+    All Tickets
+</a>
+
+{% else %}
+
+<a href="/admin-dashboard">
+    All Tickets
+</a>
+
+{% endif %}
+
+        {% if session.role != 'manager' %}
+
+<a href="/reports">
+    Reports
+</a>
+
+{% endif %}
 
         <a href="/">
             Logout
@@ -409,8 +433,18 @@ textarea{
         </div>
 
         <div class="admin-badge">
-            Admin Panel
-        </div>
+
+    {% if session.role == 'manager' %}
+
+        Manager Panel
+
+    {% else %}
+
+        Admin Panel
+
+    {% endif %}
+
+</div>
 
     </div>
 
@@ -562,9 +596,23 @@ textarea{
                         Create Ticket
                     </button>
 
-                    <a href="/admin-dashboard" class="btn btn-secondary">
-                        Cancel
-                    </a>
+                    {% if session.role == 'manager' %}
+
+<a href="/manager-dashboard" class="btn btn-secondary">
+
+    Cancel
+
+</a>
+
+{% else %}
+
+<a href="/admin-dashboard" class="btn btn-secondary">
+
+    Cancel
+
+</a>
+
+{% endif %}
 
                 </div>
 

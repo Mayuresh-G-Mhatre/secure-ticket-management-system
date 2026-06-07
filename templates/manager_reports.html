@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Manager Dashboard — STMS</title>
+<title>Manager Reports — STMS</title>
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,300&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -930,13 +930,13 @@ td {
   <!-- TOPBAR -->
   <div class="topbar">
     <div class="topbar-left">
-      <h1>Manager Dashboard</h1>
+      <h1>Manager Reports</h1>
       <div class="breadcrumb">
-        STMS &nbsp;›&nbsp; <span>Project Operations</span>
+        STMS &nbsp;›&nbsp; <span>Analytics & Reporting</span>
       </div>
     </div>
     <div class="topbar-right">
-      <form method="GET" action="/manager-dashboard" style="display:flex;align-items:center;gap:8px;">
+      <form method="GET" action="/manager-reports" style="display:flex;align-items:center;gap:8px;">
 
     <input
         type="text"
@@ -1063,285 +1063,132 @@ td {
         </div>
       </div>
     </div>
-
     
-    <!-- MANAGED PROJECTS -->
-    <div class="panel" style="margin-bottom:24px;">
+    <div class="content-row">
 
-      <div class="panel-header">
+    <!-- STATUS REPORT -->
+    <div class="panel">
 
-        <div class="panel-title">
+        <div class="panel-header">
 
-          <div class="panel-title-dot"></div>
+            <div class="panel-title">
 
-          <h2>Managed Projects</h2>
+                <div class="panel-title-dot"></div>
+
+                <h2>Ticket Status Overview</h2>
+
+            </div>
 
         </div>
-
-      </div>
-
-      <div style="
-        padding:24px;
-        display:flex;
-        gap:14px;
-        flex-wrap:wrap;
-      ">
-
-        {% for project in projects %}
 
         <div style="
-          padding:14px 22px;
-          border-radius:14px;
-          background:linear-gradient(135deg,#0f172a,#1e293b);
-          color:var(--gold-lt);
-          font-size:14px;
-          font-weight:600;
-          box-shadow:0 4px 14px rgba(15,23,42,0.12);
+            padding:28px;
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+            gap:18px;
         ">
 
-          {{ project[1] }}
+            {% for item in status_data %}
+
+            <div style="
+                background:#faf8f5;
+                border:1px solid #ece7df;
+                border-radius:16px;
+                padding:22px;
+            ">
+
+                <div style="
+                    font-size:13px;
+                    color:#64748b;
+                    margin-bottom:10px;
+                    text-transform:uppercase;
+                    letter-spacing:0.08em;
+                ">
+
+                    {{ item[0] }}
+
+                </div>
+
+                <div style="
+                    font-size:34px;
+                    font-weight:700;
+                    color:#0f172a;
+                ">
+
+                    {{ item[1] }}
+
+                </div>
+
+            </div>
+
+            {% endfor %}
 
         </div>
-
-        {% endfor %}
-
-      </div>
 
     </div>
 
+    <!-- PRIORITY REPORT -->
+    <div class="panel">
 
-    <!-- MAIN ROW: TABLE + SIDE PANELS -->
-    <div class="content-row">
-
-      <!-- RECENT TICKETS TABLE -->
-      <div class="panel">
         <div class="panel-header">
-          <div class="panel-title">
-            <div class="panel-title-dot"></div>
-            <h2>Recent Tickets</h2>
-          </div>
-          <div class="panel-actions">
-            <form method="GET" action="/manager-dashboard">
 
-    {% if search %}
-        <input
-            type="hidden"
-            name="search"
-            value="{{ search }}"
-        >
-    {% endif %}
+            <div class="panel-title">
 
-    <select
-    name="status"
-    onchange="this.form.submit()"
-    style="
-        padding:0 14px;
-        border-radius:10px;
-        border:none;
-        background:linear-gradient(135deg,#0f172a,#1e293b);
-        color: var(--gold-lt);
-        font-size:12px;
-        font-weight:600;
-        cursor:pointer;
-        height:32px;
-        min-width:130px;
-        outline:none;
-        box-shadow:0 4px 12px rgba(15,23,42,0.12);
-    "
->
+                <div class="panel-title-dot"></div>
 
-        <option value="" style="color:black;">
-            All Status
-        </option>
+                <h2>Priority Distribution</h2>
 
-        <option value="Open"
-            {% if status_filter == 'Open' %}selected{% endif %}
-            style="color:black;"
-        >
-            Open
-        </option>
+            </div>
 
-        <option value="In Progress"
-            {% if status_filter == 'In Progress' %}selected{% endif %}
-            style="color:black;"
-        >
-            In Progress
-        </option>
-
-        <option value="Resolved"
-            {% if status_filter == 'Resolved' %}selected{% endif %}
-            style="color:black;"
-        >
-            Resolved
-        </option>
-
-        <option value="Closed"
-            {% if status_filter == 'Closed' %}selected{% endif %}
-            style="color:black;"
-        >
-            Closed
-        </option>
-
-    </select>
-
-</form>
-          <a href="/create-ticket" class="btn-sm btn-gold" style="text-decoration:none;">
-    + New Ticket
-</a>
-          </div>
         </div>
-        <div class="table-wrap">
-          <table>
-            <thead>
-              <tr>
-                <th>Ticket ID</th>
-                <th>Issue</th>
-                <th>Assignee</th>
-                <th>Priority</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-           <tbody>
 
-{% if tickets|length == 0 %}
-
-<tr>
-
-    <td colspan="6"
-        style="
-            text-align:center;
-            padding:40px;
-            color:#94a3b8;
-            font-size:14px;
+        <div style="
+            padding:28px;
+            display:grid;
+            grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+            gap:18px;
         ">
 
-        No tickets found
+            {% for item in priority_data %}
 
-    </td>
+            <div style="
+                background:#faf8f5;
+                border:1px solid #ece7df;
+                border-radius:16px;
+                padding:22px;
+            ">
 
-</tr>
+                <div style="
+                    font-size:13px;
+                    color:#64748b;
+                    margin-bottom:10px;
+                    text-transform:uppercase;
+                    letter-spacing:0.08em;
+                ">
 
-{% endif %}
+                    {{ item[0] }}
 
-{% for ticket in tickets %}
+                </div>
 
-<tr>
+                <div style="
+                    font-size:34px;
+                    font-weight:700;
+                    color:#0f172a;
+                ">
 
-    <td>
-        <span class="ticket-id">
-            {{ ticket[1] }}
-        </span>
-    </td>
+                    {{ item[1] }}
 
-    <td>
-        <span class="ticket-issue">
-           {{ ticket[2] }}
-        </span>
-    </td>
+                </div>
 
-    <td>
-        <div class="assignee">
-            <div class="assignee-avatar" style="background:#dbeafe;color:#1d4ed8;">
             </div>
-            {{ ticket[5] if ticket[5] else 'Unassigned' }}
+
+            {% endfor %}
+
         </div>
-    </td>
 
-    <!-- PRIORITY -->
-<td>
+    </div>
 
-    {% if ticket[3] == 'Critical' %}
-
-        <span class="priority critical">
-            <span class="priority-dot"></span>
-            {{ ticket[3] }}
-        </span>
-
-    {% elif ticket[3] == 'High' %}
-
-        <span class="priority high">
-            <span class="priority-dot"></span>
-            {{ ticket[3] }}
-        </span>
-
-    {% elif ticket[3] == 'Medium' %}
-
-        <span class="priority medium">
-            <span class="priority-dot"></span>
-            {{ ticket[3] }}
-        </span>
-
-    {% elif ticket[3] == 'Low' %}
-
-        <span class="priority low">
-            <span class="priority-dot"></span>
-            {{ ticket[3] }}
-        </span>
-
-    {% endif %}
-
-</td>
-
-    <!-- STATUS -->
-<td>
-
-    {% if ticket[4] == 'Open' %}
-
-        <span class="status open">
-            <span class="status-dot"></span>
-            Open
-        </span>
-
-    {% elif ticket[4] == 'In Progress' %}
-
-        <span class="status in-progress">
-            <span class="status-dot"></span>
-            In Progress
-        </span>
-
-    {% elif ticket[4] == 'Resolved' %}
-
-        <span class="status resolved">
-            <span class="status-dot"></span>
-            Resolved
-        </span>
-
-    {% elif ticket[4] == 'Closed' %}
-
-        <span class="status closed">
-            <span class="status-dot"></span>
-            Closed
-        </span>
-
-    {% endif %}
-
-</td>
-
-    <td style="display:flex;align-items:center;gap:8px;">
-
-    <a href="/ticket/{{ ticket[0] }}"
-       class="action-btn">
-
-        View
-
-    </a>
-
-</td>
-
-</form>
-
-
-{% endfor %}
-
-</tbody>
-          </table>
-        </div>
-      </div>
-
-    
-  </div><!-- /content -->
-</div><!-- /main -->
+</div>
 
 <script>
   // Live date

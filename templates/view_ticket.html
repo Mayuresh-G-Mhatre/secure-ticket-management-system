@@ -333,6 +333,18 @@ body{
     ← Back Dashboard
 </a>
 
+{% elif session.role == 'manager' %}
+
+<a href="/manager-dashboard" class="back-btn">
+    ← Back Dashboard
+</a>
+
+{% elif session.role == 'customer' %}
+
+<a href="/customer-dashboard" class="back-btn">
+    ← Back Dashboard
+</a>
+
 {% endif %}
 
 </div>
@@ -745,7 +757,7 @@ body{
                             </div>
 
                             <div class="value">
-                                Admin User
+                                {{ ticket[10] if ticket[10] else 'System User' }}
                             </div>
 
                         </div>
@@ -755,12 +767,13 @@ body{
                     <div class="action-buttons" style="display:flex;flex-direction:column;gap:22px;">
 
     <!-- UPDATE STATUS -->
-
+    {% if session.role in ['admin', 'engineer'] %}
     <form
         action="/update-status/{{ ticket[0] }}"
         method="POST"
         style="width:100%;"
     >
+    
 
         <div class="label" style="margin-bottom:10px;">
             Update Status
@@ -811,6 +824,7 @@ body{
         </button>
 
     </form>
+    {% endif %}
 
 {% if session.role == 'admin' %}
 
