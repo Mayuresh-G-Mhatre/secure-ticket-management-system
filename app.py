@@ -271,7 +271,7 @@ def create_ticket():
     # -------------------------
     # FETCH PROJECTS
     # -------------------------
-    if session.get('role') == 'manager':
+    if session.get('role') in ['manager', 'customer']:
         cur.execute("""
 
             SELECT projects.id,
@@ -312,7 +312,32 @@ def create_ticket():
         description = request.form['description']
         category = request.form['category']
         priority = request.form['priority']
-        project_id = request.form['project_id']
+        # -------------------------
+        # PROJECT HANDLING
+        # -------------------------
+
+        if session.get('role') == 'customer':
+
+            customer_id = session.get('user_id')
+
+            cur.execute("""
+
+                SELECT project_id
+
+                FROM user_projects
+
+                WHERE user_id = %s
+
+            """, (customer_id,))
+
+            result = cur.fetchone()
+
+            project_id = result[0]
+
+        else:
+
+            project_id = request.form['project_id']
+
         attachment = request.files['attachment']
 
         filename = None
@@ -361,7 +386,8 @@ def create_ticket():
 
         if session.get('role') == 'manager':
             return redirect('/manager-dashboard')
-
+        elif session.get('role') == 'customer':
+            return redirect('/customer-dashboard')
         return redirect('/admin-dashboard')
 
     return render_template(
@@ -957,7 +983,7 @@ def add_note(ticket_id):
     note = request.form['note']
 
     if note.strip() == '':
-        return redirect(f'/view-ticket/{ticket_id}')
+        return redirect(f'/ticket/{ticket_id}')
 
     cursor = mysql.connection.cursor()
 
@@ -972,7 +998,7 @@ def add_note(ticket_id):
 
     mysql.connection.commit()
 
-    return redirect(f'/view-ticket/{ticket_id}')
+    return redirect(f'/ticket/{ticket_id}')
 
 @app.route('/engineer-dashboard')
 def engineer_dashboard():
@@ -1461,28 +1487,250 @@ def manager_reports():
 
     cur.close()
 
+    critical_count = 0
+    high_count = 0
+    medium_count = 0
+    low_count = 0
+
+    for row in priority_data:
+        if row[0] == 'Critical':
+            critical_count = row[1]
+        elif row[0] == 'High':
+            high_count = row[1]
+        elif row[0] == 'Medium':
+            medium_count = row[1]
+        elif row[0] == 'Low':
+            low_count = row[1]
+
+    return render_template(
+        'manager_reports.html',
+        total_tickets=total_tickets,
+        open_tickets=open_tickets,
+        in_progress_tickets=in_progress_tickets,
+        resolved_tickets=resolved_tickets,
+        status_data=status_data,
+        priority_data=priority_data,
+        project_data=project_data,
+        critical_count=critical_count,
+        high_count=high_count,
+        medium_count=medium_count,
+        low_count=low_count
+    )
+
+@app.route('/customer-dashboard')
+def customer_dashboard():
+
+    # -------------------------
+    # CUSTOMER SESSION CHECK
+    # -------------------------
+
+    if session.get('role') != 'customer':
+
+        return redirect('/')
+
+    cur = mysql.connection.cursor()
+
+    customer_id = session.get('user_id')
+
+    search = request.args.get('search', '')
+
+    status_filter = request.args.get('status', '')
+
+    # -------------------------
+    # CUSTOMER PROJECT
+    # -------------------------
+
+    cur.execute("""
+
+        SELECT project_id
+
+        FROM user_projects
+
+        WHERE user_id = %s
+
+    """, (customer_id,))
+
+    result = cur.fetchone()
+
+    if not result:
+
+        return render_template(
+
+            'customer_dashboard.html',
+
+            tickets=[],
+            total_tickets=0,
+            open_tickets=0,
+            in_progress_tickets=0,
+            resolved_tickets=0
+
+        )
+
+    project_id = result[0]
+
+    # -------------------------
+    # TOTAL TICKETS
+    # -------------------------
+
+    cur.execute("""
+
+        SELECT COUNT(*)
+
+        FROM tickets
+
+        WHERE project_id = %s
+
+    """, (project_id,))
+
+    total_tickets = cur.fetchone()[0]
+
+    # -------------------------
+    # OPEN TICKETS
+    # -------------------------
+
+    cur.execute("""
+
+        SELECT COUNT(*)
+
+        FROM tickets
+
+        WHERE status='Open'
+        AND project_id = %s
+
+    """, (project_id,))
+
+    open_tickets = cur.fetchone()[0]
+
+    # -------------------------
+    # IN PROGRESS
+    # -------------------------
+
+    cur.execute("""
+
+        SELECT COUNT(*)
+
+        FROM tickets
+
+        WHERE status='In Progress'
+        AND project_id = %s
+
+    """, (project_id,))
+
+    in_progress_tickets = cur.fetchone()[0]
+
+    # -------------------------
+    # RESOLVED
+    # -------------------------
+
+    cur.execute("""
+
+        SELECT COUNT(*)
+
+        FROM tickets
+
+        WHERE status='Resolved'
+        AND project_id = %s
+
+    """, (project_id,))
+
+    resolved_tickets = cur.fetchone()[0]
+
+    # -------------------------
+    # RECENT TICKETS
+    # -------------------------
+
+    query = """
+
+        SELECT
+            tickets.ticket_id,
+            tickets.ticket_number,
+            tickets.title,
+            tickets.priority,
+            tickets.status,
+            users.full_name
+
+        FROM tickets
+
+        LEFT JOIN users
+        ON tickets.assigned_to = users.id
+
+        WHERE tickets.project_id = %s
+
+    """
+
+    params = [project_id]
+
+    # SEARCH
+    if search:
+
+        query += """
+
+            AND (
+
+                tickets.ticket_number LIKE %s
+                OR tickets.title LIKE %s
+                OR tickets.status LIKE %s
+                OR tickets.priority LIKE %s
+                OR users.full_name LIKE %s
+
+            )
+
+        """
+
+        params.extend([
+
+            f"%{search}%",
+            f"%{search}%",
+            f"%{search}%",
+            f"%{search}%",
+            f"%{search}%"
+
+        ])
+
+    # STATUS FILTER
+    if status_filter:
+
+        query += """
+
+            AND tickets.status = %s
+
+        """
+
+        params.append(status_filter)
+
+    query += """
+
+        ORDER BY tickets.created_at DESC
+
+        LIMIT 10
+
+    """
+
+    cur.execute(query, tuple(params))
+
+    tickets = cur.fetchall()
+
+    cur.close()
+
     return render_template(
 
-        'manager_reports.html',
+        'customer_dashboard.html',
+
+        tickets=tickets,
+
+        search=search,
+
+        status_filter=status_filter,
 
         total_tickets=total_tickets,
 
         open_tickets=open_tickets,
 
         in_progress_tickets=in_progress_tickets,
-        
-        resolved_tickets=resolved_tickets,
 
-        status_data=status_data,
+        resolved_tickets=resolved_tickets
 
-        priority_data=priority_data,
-
-        project_data=project_data
     )
-
-@app.route('/customer-dashboard')
-def customer_dashboard():
-    return "<h1>Customer Dashboard</h1>"
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):

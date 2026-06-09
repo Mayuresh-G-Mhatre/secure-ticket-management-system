@@ -368,15 +368,21 @@ textarea{
 
     <div class="nav-links">
 
-        {% if session.role == 'manager' %}
+        {% if session.role == 'admin' %}
+
+<a href="/admin-dashboard">
+    Dashboard
+</a>
+
+{% elif session.role == 'manager' %}
 
 <a href="/manager-dashboard">
     Dashboard
 </a>
 
-{% else %}
+{% elif session.role == 'customer' %}
 
-<a href="/admin-dashboard">
+<a href="/customer-dashboard">
     Dashboard
 </a>
 
@@ -386,21 +392,27 @@ textarea{
             Create Ticket
         </a>
 
-        {% if session.role == 'manager' %}
-
-<a href="/manager-dashboard">
-    All Tickets
-</a>
-
-{% else %}
+        {% if session.role == 'admin' %}
 
 <a href="/admin-dashboard">
     All Tickets
 </a>
 
+{% elif session.role == 'manager' %}
+
+<a href="/manager-dashboard">
+    All Tickets
+</a>
+
+{% elif session.role == 'customer' %}
+
+<a href="/customer-dashboard">
+    My Tickets
+</a>
+
 {% endif %}
 
-        {% if session.role != 'manager' %}
+        {% if session.role == 'admin' %}
 
 <a href="/reports">
     Reports
@@ -434,15 +446,19 @@ textarea{
 
         <div class="admin-badge">
 
-    {% if session.role == 'manager' %}
+    {% if session.role == 'admin' %}
 
-        Manager Panel
+    Admin Panel
 
-    {% else %}
+{% elif session.role == 'manager' %}
 
-        Admin Panel
+    Manager Panel
 
-    {% endif %}
+{% elif session.role == 'customer' %}
+
+    Customer Panel
+
+{% endif %}
 
 </div>
 
@@ -532,6 +548,16 @@ textarea{
 
     <label>Project</label>
 
+    {% if session.role == 'customer' %}
+
+    <input
+        type="text"
+        value="{{ projects[0][1] }}"
+        readonly
+    >
+
+    {% else %}
+
     <select name="project_id" required>
 
         <option value="">
@@ -550,7 +576,10 @@ textarea{
 
     </select>
 
+    {% endif %}
+
 </div>
+
 
                 <!-- FILE UPLOAD -->
 
@@ -596,7 +625,15 @@ textarea{
                         Create Ticket
                     </button>
 
-                    {% if session.role == 'manager' %}
+                    {% if session.role == 'admin' %}
+
+<a href="/admin-dashboard" class="btn btn-secondary">
+
+    Cancel
+
+</a>
+
+{% elif session.role == 'manager' %}
 
 <a href="/manager-dashboard" class="btn btn-secondary">
 
@@ -604,9 +641,9 @@ textarea{
 
 </a>
 
-{% else %}
+{% elif session.role == 'customer' %}
 
-<a href="/admin-dashboard" class="btn btn-secondary">
+<a href="/customer-dashboard" class="btn btn-secondary">
 
     Cancel
 
