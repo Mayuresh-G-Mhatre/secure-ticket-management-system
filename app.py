@@ -29,6 +29,84 @@ app.config['MYSQL_DB'] = 'stms_db'
 mysql = MySQL(app)
 
 # -------------------------
+# NOTIFICATION FUNCTIONS
+# -------------------------
+
+def create_notification(user_id, title, message, notif_type, ticket_id=None):
+
+    cur = mysql.connection.cursor()
+
+    query = """
+        INSERT INTO notifications
+        (user_id, title, message, type, ticket_id)
+
+        VALUES (%s, %s, %s, %s, %s)
+    """
+
+    values = (
+        user_id,
+        title,
+        message,
+        notif_type,
+        ticket_id
+    )
+
+    cur.execute(query, values)
+
+    mysql.connection.commit()
+
+    cur.close()
+
+
+def get_notifications():
+
+    if not session.get('user_id'):
+        return []
+
+    cur = mysql.connection.cursor()
+
+    query = """
+
+        SELECT
+            id,
+            title,
+            message,
+            is_read,
+            ticket_id,
+            created_at
+
+        FROM notifications
+
+        WHERE user_id = %s
+
+        ORDER BY created_at DESC
+
+        LIMIT 10
+
+    """
+
+    cur.execute(query, (session.get('user_id'),))
+
+    notifications = cur.fetchall()
+
+    cur.close()
+
+    return notifications
+
+
+@app.context_processor
+def inject_notifications():
+
+    notifications = get_notifications()
+
+    unread_count = len([n for n in notifications if not n[3]])
+
+    return dict(
+        notifications=notifications,
+        unread_count=unread_count
+    )
+
+# -------------------------
 # HOME PAGE
 # -------------------------
 
@@ -382,6 +460,17 @@ def create_ticket():
 
         mysql.connection.commit()
 
+        # -------------------------
+        # CREATE NOTIFICATION
+        # -------------------------
+
+        create_notification(
+            1,
+            "New Ticket Created",
+            f"{ticket_number} has been created.",
+            "ticket_created"
+        )
+
         cur.close()
 
         if session.get('role') == 'manager':
@@ -468,6 +557,24 @@ def update_status(ticket_id):
 
     mysql.connection.commit()
 
+    # -------------------------
+    # STATUS NOTIFICATION
+    # -------------------------
+
+    create_notification(
+
+        1,
+
+        "Ticket Status Updated",
+
+        f"Ticket #{ticket_id} updated to {new_status}.",
+
+        "status_update",
+
+        ticket_id
+
+    )
+
     cur.close()
 
     return redirect(f'/ticket/{ticket_id}')
@@ -489,6 +596,23 @@ def assign_ticket(ticket_id):
 
     mysql.connection.commit()
 
+    # -------------------------
+    # ASSIGNMENT NOTIFICATION
+    # -------------------------
+
+    create_notification(
+
+    engineer_id,
+
+    "New Ticket Assigned",
+
+    f"You have been assigned Ticket #{ticket_id}.",
+
+    "ticket_assigned",
+
+    ticket_id
+
+)
     cur.close()
 
     return redirect(f'/ticket/{ticket_id}')
@@ -997,7 +1121,23 @@ def add_note(ticket_id):
     ))
 
     mysql.connection.commit()
+        # -------------------------
+        # NOTE NOTIFICATION
+        # -------------------------
 
+    create_notification(
+
+    1,
+
+    "New Comment Added",
+
+    f"A note was added to Ticket #{ticket_id}.",
+
+    "note_added",
+
+    ticket_id
+
+)
     return redirect(f'/ticket/{ticket_id}')
 
 @app.route('/engineer-dashboard')

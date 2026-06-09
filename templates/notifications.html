@@ -1,0 +1,70 @@
+<div class="notification-wrapper">
+
+    <button class="notification-btn">
+
+        🔔
+
+        {% if unread_count > 0 %}
+
+        <span class="notification-badge">
+
+            {{ unread_count }}
+
+        </span>
+
+        {% endif %}
+
+    </button>
+
+    <div class="notification-dropdown">
+
+        <div class="notification-header">
+
+            Notifications
+
+        </div>
+
+        {% if notifications %}
+
+            {% for notif in notifications %}
+
+            <a
+                href="/ticket/{{ notif[4] }}"
+                class="notification-item"
+            >
+
+                <div class="notification-title">
+
+                    {{ notif[1] }}
+
+                </div>
+
+                <div class="notification-message">
+
+                    {{ notif[2] }}
+
+                </div>
+
+                <div class="notification-time">
+
+                    {{ notif[5] }}
+
+                </div>
+
+            </a>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="notification-empty">
+
+                No notifications available
+
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</div>
