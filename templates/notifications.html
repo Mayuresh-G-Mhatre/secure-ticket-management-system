@@ -20,17 +20,24 @@
 
         <div class="notification-header">
 
-            Notifications
+    <span>Notifications</span>
 
-        </div>
+    <a
+        href="/clear-notifications"
+        class="clear-notifications"
+    >
+        Clear All
+    </a>
+
+</div>
 
         {% if notifications %}
 
             {% for notif in notifications %}
 
             <a
-                href="/ticket/{{ notif[4] }}"
-                class="notification-item"
+                href="/notification/{{ notif[0] }}/{{ notif[4] }}"
+                class="notification-item {% if notif[3] == 1 %}notification-read{% endif %}"
             >
 
                 <div class="notification-title">
@@ -68,3 +75,215 @@
     </div>
 
 </div>
+
+<style>
+
+.notification-wrapper {
+
+    position: relative;
+    padding-bottom:5px;
+
+}
+
+.notification-btn {
+
+    position: relative;
+
+    border: none;
+
+    background: white;
+
+    width: 44px;
+    height: 44px;
+
+    border-radius: 12px;
+
+    cursor: pointer;
+
+    font-size: 18px;
+
+    box-shadow: 0 4px 12px rgba(15,23,42,0.08);
+
+}
+
+.notification-badge {
+
+    position:absolute;
+    top:-5px;
+    right:-5px;
+
+    background:#ef4444;
+    color:white;
+
+    width:20px;
+    height:20px;
+
+    border-radius:50%;
+
+    font-size:11px;
+    font-weight:700;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.notification-dropdown {
+
+    position: absolute;
+
+    top: 48px;
+    right: 0;
+
+    width: 340px;
+
+    background: white;
+
+    border-radius: 18px;
+
+    box-shadow: 0 12px 32px rgba(15,23,42,0.15);
+
+    overflow: hidden;
+
+    display: none;
+
+    z-index: 9999;
+
+}
+
+.notification-wrapper:hover .notification-dropdown {
+
+    display: block;
+
+}
+
+.notification-header {
+
+    padding: 18px 20px;
+
+    font-size: 16px;
+
+    font-weight: 700;
+
+    border-bottom: 1px solid #e2e8f0;
+
+}
+
+.notification-item {
+
+    display: block;
+
+    padding: 16px 20px;
+
+    text-decoration: none;
+
+    border-bottom: 1px solid #f1f5f9;
+
+    transition: background 0.2s ease;
+    
+    border-left:4px solid transparent;
+
+}
+
+.notification-read{
+
+    background:#f8fafc;
+
+    opacity:0.75;
+}
+
+.notification-read .notification-title{
+
+    font-weight:600;
+}
+
+.notification-read .notification-message{
+
+    color:#94a3b8;
+}
+
+.notification-item:not(.notification-read){
+
+    border-left:4px solid #f59e0b;
+
+    background:#fff;
+}
+
+.notification-item:hover {
+
+    background: #f8fafc;
+
+}
+
+.notification-title {
+
+    font-size: 14px;
+
+    font-weight: 700;
+
+    color: #0f172a;
+
+    margin-bottom: 6px;
+
+}
+
+.notification-message {
+
+    font-size: 13px;
+
+    color: #64748b;
+
+    margin-bottom: 6px;
+
+    line-height: 1.5;
+
+}
+
+.notification-time {
+
+    font-size: 11px;
+
+    color: #94a3b8;
+
+}
+
+.notification-empty {
+
+    padding: 24px;
+
+    text-align: center;
+
+    color: #64748b;
+
+}
+.notification-header{
+
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+
+    padding:18px 20px;
+
+    border-bottom:1px solid #e2e8f0;
+
+    font-size:16px;
+    font-weight:700;
+}
+
+.clear-notifications{
+
+    font-size:12px;
+
+    color:#ef4444;
+
+    text-decoration:none;
+
+    font-weight:600;
+}
+
+.clear-notifications:hover{
+
+    opacity:0.8;
+}
+
+</style>

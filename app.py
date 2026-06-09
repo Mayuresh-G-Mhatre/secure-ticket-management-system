@@ -57,6 +57,114 @@ def create_notification(user_id, title, message, notif_type, ticket_id=None):
 
     cur.close()
 
+# -------------------------
+# NOTIFY ADMINS
+# -------------------------
+
+def notify_admins(title, message, notif_type, ticket_id):
+
+    cur = mysql.connection.cursor()
+
+    cur.execute("""
+
+        SELECT id
+
+        FROM users
+
+        WHERE role = 'admin'
+
+    """)
+
+    admins = cur.fetchall()
+
+    for admin in admins:
+
+        create_notification(
+
+            admin[0],
+            title,
+            message,
+            notif_type,
+            ticket_id
+
+        )
+
+    cur.close()
+
+
+# -------------------------
+# NOTIFY PROJECT MANAGERS
+# -------------------------
+
+def notify_project_managers(project_id, title, message, notif_type, ticket_id):
+
+    cur = mysql.connection.cursor()
+
+    query = """
+
+        SELECT users.id
+
+        FROM users
+
+        JOIN user_projects
+        ON users.id = user_projects.user_id
+
+        WHERE users.role = 'manager'
+        AND user_projects.project_id = %s
+
+    """
+
+    cur.execute(query, (project_id,))
+
+    managers = cur.fetchall()
+
+    for manager in managers:
+
+        create_notification(
+
+            manager[0],
+            title,
+            message,
+            notif_type,
+            ticket_id
+
+        )
+
+    cur.close()
+
+
+# -------------------------
+# NOTIFY ENGINEER
+# -------------------------
+
+def notify_engineer(engineer_id, title, message, notif_type, ticket_id):
+
+    create_notification(
+
+        engineer_id,
+        title,
+        message,
+        notif_type,
+        ticket_id
+
+    )
+
+
+# -------------------------
+# NOTIFY CUSTOMER
+# -------------------------
+
+def notify_customer(customer_id, title, message, notif_type, ticket_id):
+
+    create_notification(
+
+        customer_id,
+        title,
+        message,
+        notif_type,
+        ticket_id
+
+    )
 
 def get_notifications():
 
@@ -95,16 +203,114 @@ def get_notifications():
 
 
 @app.context_processor
+
 def inject_notifications():
 
-    notifications = get_notifications()
+    if 'user_id' not in session:
 
-    unread_count = len([n for n in notifications if not n[3]])
+        return dict(
+            notifications=[],
+            unread_count=0
+        )
+
+    cur = mysql.connection.cursor()
+
+    cur.execute("""
+
+        SELECT
+            id,
+            title,
+            message,
+            is_read,
+            ticket_id,
+            created_at
+
+        FROM notifications
+
+        WHERE user_id = %s
+
+        ORDER BY created_at DESC
+
+        LIMIT 10
+
+    """, (session['user_id'],))
+
+    notifications = cur.fetchall()
+
+    # UNREAD COUNT
+
+    cur.execute("""
+
+        SELECT COUNT(*)
+
+        FROM notifications
+
+        WHERE user_id = %s
+        AND is_read = 0
+
+    """, (session['user_id'],))
+
+    unread_count = cur.fetchone()[0]
+
+    cur.close()
 
     return dict(
         notifications=notifications,
         unread_count=unread_count
     )
+@app.route('/notification/<int:notif_id>/<int:ticket_id>')
+def open_notification(notif_id, ticket_id):
+
+    if 'user_id' not in session:
+        return redirect('/')
+
+    cur = mysql.connection.cursor()
+
+    # MARK AS READ
+
+    cur.execute("""
+
+        UPDATE notifications
+
+        SET is_read = 1
+
+        WHERE id = %s
+        AND user_id = %s
+
+    """, (
+
+        notif_id,
+        session['user_id']
+
+    ))
+
+    mysql.connection.commit()
+
+    cur.close()
+
+    return redirect(f'/ticket/{ticket_id}')
+
+@app.route('/clear-notifications')
+def clear_notifications():
+
+    if 'user_id' not in session:
+        return redirect('/')
+
+    cur = mysql.connection.cursor()
+
+    cur.execute("""
+
+        DELETE FROM notifications
+
+        WHERE user_id = %s
+
+    """, (session['user_id'],))
+
+    mysql.connection.commit()
+
+    cur.close()
+
+    return redirect(request.referrer or '/')
 
 # -------------------------
 # HOME PAGE
@@ -349,75 +555,40 @@ def create_ticket():
     # -------------------------
     # FETCH PROJECTS
     # -------------------------
-    if session.get('role') in ['manager', 'customer']:
-        cur.execute("""
+    cur.execute("SELECT project_id, project_name FROM projects")
+    projects = cur.fetchall()
 
-            SELECT projects.id,
-                   projects.project_name
-
-            FROM user_projects
-
-            JOIN projects
-            ON user_projects.project_id = projects.id
-
-            WHERE user_projects.user_id = %s
-
-            ORDER BY projects.project_name ASC
-
-        """, (session.get('user_id'),))
-        projects = cur.fetchall()
-    else:
-        cur.execute("""
-
-            SELECT id, project_name
-
-            FROM projects
-
-            ORDER BY project_name ASC
-
-        """)
-        projects = cur.fetchall()
-
-    # Generate next ticket number
     cur.execute("SELECT COUNT(*) FROM tickets")
     count = cur.fetchone()[0] + 1
-
     next_ticket_number = f"ST{1000 + count}"
 
     if request.method == 'POST':
-
         title = request.form['title']
         description = request.form['description']
         category = request.form['category']
         priority = request.form['priority']
+
         # -------------------------
         # PROJECT HANDLING
         # -------------------------
-
         if session.get('role') == 'customer':
-
             customer_id = session.get('user_id')
 
-            cur.execute("""
-
+            cur.execute(
+                """
                 SELECT project_id
-
                 FROM user_projects
-
                 WHERE user_id = %s
-
-            """, (customer_id,))
+                """,
+                (customer_id,)
+            )
 
             result = cur.fetchone()
-
-            project_id = result[0]
-
+            project_id = result[0] if result else None
         else:
-
             project_id = request.form['project_id']
 
-        attachment = request.files['attachment']
-
+        attachment = request.files.get('attachment')
         filename = None
 
         if attachment and attachment.filename != '':
@@ -428,7 +599,7 @@ def create_ticket():
                     filename
                 )
             )
-        
+
         ticket_number = next_ticket_number
 
         query = """
@@ -436,8 +607,7 @@ def create_ticket():
             (ticket_number, title, description,
              category, priority, status,
              created_by, assigned_to,
-            attachment, project_id)
-
+             attachment, project_id)
             VALUES (%s, %s, %s,
                     %s, %s, %s,
                     %s, %s, %s, %s)
@@ -457,18 +627,26 @@ def create_ticket():
         )
 
         cur.execute(query, values)
-
         mysql.connection.commit()
 
-        # -------------------------
-        # CREATE NOTIFICATION
-        # -------------------------
+        ticket_id = cur.lastrowid
 
-        create_notification(
-            1,
+        # -------------------------
+        # NOTIFICATIONS
+        # -------------------------
+        notify_admins(
             "New Ticket Created",
             f"{ticket_number} has been created.",
-            "ticket_created"
+            "ticket_created",
+            ticket_id
+        )
+
+        notify_project_managers(
+            project_id,
+            "New Ticket Created",
+            f"{ticket_number} has been created.",
+            "ticket_created",
+            ticket_id
         )
 
         cur.close()
@@ -478,6 +656,8 @@ def create_ticket():
         elif session.get('role') == 'customer':
             return redirect('/customer-dashboard')
         return redirect('/admin-dashboard')
+
+    cur.close()
 
     return render_template(
         'create_ticket.html',
@@ -561,13 +741,72 @@ def update_status(ticket_id):
     # STATUS NOTIFICATION
     # -------------------------
 
-    create_notification(
+    # -------------------------
+    # GET TICKET DETAILS
+    # -------------------------
 
-        1,
+    cur.execute("""
+
+        SELECT
+            project_id,
+            created_by
+
+        FROM tickets
+
+        WHERE ticket_id = %s
+
+    """, (ticket_id,))
+
+    ticket_data = cur.fetchone()
+
+    project_id = ticket_data[0]
+    customer_id = ticket_data[1]
+
+    # -------------------------
+    # ADMIN NOTIFICATIONS
+    # -------------------------
+
+    notify_admins(
 
         "Ticket Status Updated",
 
         f"Ticket #{ticket_id} updated to {new_status}.",
+
+        "status_update",
+
+        ticket_id
+
+    )
+
+    # -------------------------
+    # MANAGER NOTIFICATIONS
+    # -------------------------
+
+    notify_project_managers(
+
+        project_id,
+
+        "Ticket Status Updated",
+
+        f"Ticket #{ticket_id} updated to {new_status}.",
+
+        "status_update",
+
+        ticket_id
+
+    )
+
+    # -------------------------
+    # CUSTOMER NOTIFICATION
+    # -------------------------
+
+    notify_customer(
+
+        customer_id,
+
+        "Ticket Status Updated",
+
+        f"Your ticket #{ticket_id} is now {new_status}.",
 
         "status_update",
 
@@ -600,7 +839,7 @@ def assign_ticket(ticket_id):
     # ASSIGNMENT NOTIFICATION
     # -------------------------
 
-    create_notification(
+    notify_engineer(
 
     engineer_id,
 
@@ -1125,9 +1364,7 @@ def add_note(ticket_id):
         # NOTE NOTIFICATION
         # -------------------------
 
-    create_notification(
-
-    1,
+    notify_admins(
 
     "New Comment Added",
 
