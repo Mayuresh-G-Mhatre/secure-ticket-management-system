@@ -42,9 +42,21 @@
 
                 <div class="notification-title">
 
-                    {{ notif[1] }}
+                {% if 'ticket_created' in notif[1]|lower %}
+                        🆕
+                {% elif 'status' in notif[1]|lower %}
+                        🔄
+                {% elif 'comment' in notif[1]|lower %}
+                        💬
+                {% elif 'assigned' in notif[1]|lower %}
+                        👨‍💻
+                {% else %}
+                        🔔
+                {% endif %}
 
-                </div>
+                {{ notif[1] }}
+
+</div>
 
                 <div class="notification-message">
 
@@ -216,6 +228,12 @@
 }
 
 .notification-title {
+
+    display:flex;
+
+    align-items:center;
+
+    gap:8px;
 
     font-size: 14px;
 

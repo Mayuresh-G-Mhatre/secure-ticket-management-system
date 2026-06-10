@@ -79,6 +79,12 @@ def notify_admins(title, message, notif_type, ticket_id):
 
     for admin in admins:
 
+    #------------------------
+    # SKIP SELF NOTIFICATION
+    #-------------------------
+        if admin[0] == session.get('user_id'):
+            continue
+
         create_notification(
 
             admin[0],
@@ -90,7 +96,6 @@ def notify_admins(title, message, notif_type, ticket_id):
         )
 
     cur.close()
-
 
 # -------------------------
 # NOTIFY PROJECT MANAGERS
@@ -120,6 +125,12 @@ def notify_project_managers(project_id, title, message, notif_type, ticket_id):
 
     for manager in managers:
 
+    #------------------------
+    # SKIP SELF NOTIFICATION
+    #-------------------------
+        if manager[0] == session.get('user_id'):
+            continue
+
         create_notification(
 
             manager[0],
@@ -138,6 +149,13 @@ def notify_project_managers(project_id, title, message, notif_type, ticket_id):
 # -------------------------
 
 def notify_engineer(engineer_id, title, message, notif_type, ticket_id):
+    
+    #-------------------------
+    # SKIP SELF NOTIFICATION
+    #-------------------------
+
+    if engineer_id == session.get('user_id'):
+        return
 
     create_notification(
 
@@ -155,6 +173,12 @@ def notify_engineer(engineer_id, title, message, notif_type, ticket_id):
 # -------------------------
 
 def notify_customer(customer_id, title, message, notif_type, ticket_id):
+    #-------------------------
+    # SKIP SELF NOTIFICATION
+    #-------------------------
+    
+    if customer_id == session.get('user_id'):
+        return
 
     create_notification(
 
@@ -636,7 +660,7 @@ def create_ticket():
         # -------------------------
         notify_admins(
             "New Ticket Created",
-            f"{ticket_number} has been created.",
+            f"New support ticket {ticket_number} was created.",
             "ticket_created",
             ticket_id
         )
@@ -644,7 +668,7 @@ def create_ticket():
         notify_project_managers(
             project_id,
             "New Ticket Created",
-            f"{ticket_number} has been created.",
+            f"New support ticket {ticket_number} was created.",
             "ticket_created",
             ticket_id
         )
@@ -749,7 +773,8 @@ def update_status(ticket_id):
 
         SELECT
             project_id,
-            created_by
+            created_by,
+            assigned_to
 
         FROM tickets
 
@@ -761,7 +786,7 @@ def update_status(ticket_id):
 
     project_id = ticket_data[0]
     customer_id = ticket_data[1]
-
+    engineer_id = ticket_data[2]
     # -------------------------
     # ADMIN NOTIFICATIONS
     # -------------------------
@@ -770,7 +795,7 @@ def update_status(ticket_id):
 
         "Ticket Status Updated",
 
-        f"Ticket #{ticket_id} updated to {new_status}.",
+        f"Ticket status changed to {new_status}.",
 
         "status_update",
 
@@ -788,7 +813,7 @@ def update_status(ticket_id):
 
         "Ticket Status Updated",
 
-        f"Ticket #{ticket_id} updated to {new_status}.",
+        f"Ticket status changed to {new_status}.",
 
         "status_update",
 
@@ -806,13 +831,30 @@ def update_status(ticket_id):
 
         "Ticket Status Updated",
 
-        f"Your ticket #{ticket_id} is now {new_status}.",
+        f"Your ticket status has been updated to {new_status}.",
 
         "status_update",
 
         ticket_id
 
     )
+    # -------------------------
+    # ENGINEER NOTIFICATION
+    # -------------------------
+
+    notify_engineer(
+
+    engineer_id,
+
+    "Ticket Status Updated",
+
+    f"Assigned ticket status updated to {new_status}.",
+
+    "status_update",
+
+    ticket_id
+
+)
 
     cur.close()
 
@@ -845,7 +887,7 @@ def assign_ticket(ticket_id):
 
     "New Ticket Assigned",
 
-    f"You have been assigned Ticket #{ticket_id}.",
+    f"You have been assigned a new support ticket.",
 
     "ticket_assigned",
 
@@ -1360,21 +1402,63 @@ def add_note(ticket_id):
     ))
 
     mysql.connection.commit()
-        # -------------------------
-        # NOTE NOTIFICATION
-        # -------------------------
+
+    # -------------------------
+    # FETCH TICKET DETAILS
+    # -------------------------
+
+    cursor.execute("""
+
+    SELECT
+        project_id,
+        created_by
+
+    FROM tickets
+
+    WHERE ticket_id = %s
+
+""", (ticket_id,))
+
+    ticket_data = cursor.fetchone()
+
+    project_id = ticket_data[0]
+    customer_id = ticket_data[1]
+
+    # -------------------------
+    # ADMIN NOTIFICATIONS
+    # -------------------------
 
     notify_admins(
+        "New Comment Added",
+        f"A new comment was added to the ticket.",
+        "note_added",
+        ticket_id
+    )
 
-    "New Comment Added",
+    # -------------------------
+    # MANAGER NOTIFICATIONS
+    # -------------------------
 
-    f"A note was added to Ticket #{ticket_id}.",
+    notify_project_managers(
+        project_id,
+        "New Comment Added",
+        f"A new comment was added to the ticket.",
+        "note_added",
+        ticket_id
+    )
 
-    "note_added",
+    # -------------------------
+    # CUSTOMER NOTIFICATION
+    # -------------------------
 
-    ticket_id
+    notify_customer(
+        customer_id,
+        "New Comment Added",
+        f"A new update was added to your ticket.",
+        "note_added",
+        ticket_id
+    )
 
-)
     return redirect(f'/ticket/{ticket_id}')
 
 @app.route('/engineer-dashboard')
