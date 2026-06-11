@@ -15,7 +15,7 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 # SECRET KEY
 # -------------------------
 
-app.secret_key = 'stms_secret_key'
+app.secret_key = os.getenv('SECRET_KEY')
 
 # -------------------------
 # MYSQL CONFIGURATION
