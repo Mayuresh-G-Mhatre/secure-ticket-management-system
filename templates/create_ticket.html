@@ -101,7 +101,7 @@ body{
 /* TOPBAR */
 
 .topbar{
-    background:white;
+    background:var(--surface);
     border-bottom:1px solid var(--border);
     padding:22px 34px;
     display:flex;
@@ -142,7 +142,7 @@ body{
 /* FORM CARD */
 
 .form-card{
-    background:white;
+    background:var(--surface);
     border-radius:22px;
     border:1px solid var(--border);
     padding:34px;
@@ -187,7 +187,7 @@ select:focus{
     outline:none;
     border-color:var(--gold);
     box-shadow:0 0 0 4px rgba(201,168,76,0.15);
-    background:white;
+    background:var(--surface);
 }
 
 textarea{
@@ -281,7 +281,7 @@ textarea{
 }
 
 .info-card{
-    background:white;
+    background:var(--surface);
     border-radius:20px;
     border:1px solid var(--border);
     padding:24px;
@@ -352,6 +352,10 @@ textarea{
 }
 
 </style>
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/dark-mode.css') }}"
+>
 </head>
 
 <body>
@@ -728,6 +732,8 @@ textarea{
     </div>
 
 </div>
-
+<script
+    src="{{ url_for('static', filename='js/dark-mode.js') }}"
+></script>
 </body>
 </html>

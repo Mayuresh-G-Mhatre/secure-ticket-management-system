@@ -571,22 +571,68 @@ def unassigned_tickets():
         priority_filter=priority_filter,
         active_page='unassigned_tickets'
     )
-
 @app.route('/create-ticket', methods=['GET', 'POST'])
 def create_ticket():
+
     cur = mysql.connection.cursor()
 
     # -------------------------
     # FETCH PROJECTS
     # -------------------------
-    cur.execute("SELECT project_id, project_name FROM projects")
-    projects = cur.fetchall()
+
+    if session.get('role') in ['manager', 'customer']:
+
+        cur.execute("""
+
+            SELECT
+                projects.id,
+                projects.project_name
+
+            FROM user_projects
+
+            JOIN projects
+            ON user_projects.project_id = projects.id
+
+            WHERE user_projects.user_id = %s
+
+            ORDER BY projects.project_name ASC
+
+        """, (session.get('user_id'),))
+
+        projects = cur.fetchall()
+
+    else:
+
+        cur.execute("""
+
+            SELECT
+                id,
+                project_name
+
+            FROM projects
+
+            ORDER BY project_name ASC
+
+        """)
+
+        projects = cur.fetchall()
+
+    # -------------------------
+    # NEXT TICKET NUMBER
+    # -------------------------
 
     cur.execute("SELECT COUNT(*) FROM tickets")
+
     count = cur.fetchone()[0] + 1
+
     next_ticket_number = f"ST{1000 + count}"
 
+    # -------------------------
+    # CREATE TICKET
+    # -------------------------
+
     if request.method == 'POST':
+
         title = request.form['title']
         description = request.form['description']
         category = request.form['category']
@@ -595,28 +641,43 @@ def create_ticket():
         # -------------------------
         # PROJECT HANDLING
         # -------------------------
+
         if session.get('role') == 'customer':
+
             customer_id = session.get('user_id')
 
-            cur.execute(
-                """
+            cur.execute("""
+
                 SELECT project_id
+
                 FROM user_projects
+
                 WHERE user_id = %s
-                """,
-                (customer_id,)
-            )
+
+            """, (customer_id,))
 
             result = cur.fetchone()
+
             project_id = result[0] if result else None
+
         else:
+
             project_id = request.form['project_id']
 
+        # -------------------------
+        # FILE UPLOAD
+        # -------------------------
+
         attachment = request.files.get('attachment')
+
         filename = None
 
         if attachment and attachment.filename != '':
-            filename = secure_filename(attachment.filename)
+
+            filename = secure_filename(
+                attachment.filename
+            )
+
             attachment.save(
                 os.path.join(
                     app.config['UPLOAD_FOLDER'],
@@ -626,31 +687,56 @@ def create_ticket():
 
         ticket_number = next_ticket_number
 
+        # -------------------------
+        # INSERT TICKET
+        # -------------------------
+
         query = """
+
             INSERT INTO tickets
-            (ticket_number, title, description,
-             category, priority, status,
-             created_by, assigned_to,
-             attachment, project_id)
-            VALUES (%s, %s, %s,
-                    %s, %s, %s,
-                    %s, %s, %s, %s)
+            (
+                ticket_number,
+                title,
+                description,
+                category,
+                priority,
+                status,
+                created_by,
+                assigned_to,
+                attachment,
+                project_id
+            )
+
+            VALUES
+            (
+                %s, %s, %s,
+                %s, %s, %s,
+                %s, %s, %s, %s
+            )
+
         """
 
         values = (
+
             ticket_number,
             title,
             description,
             category,
             priority,
             'Open',
-            4,
-            2,
+
+            session.get('user_id'),
+
+            None,
+
             filename,
+
             project_id
+
         )
 
         cur.execute(query, values)
+
         mysql.connection.commit()
 
         ticket_id = cur.lastrowid
@@ -658,36 +744,64 @@ def create_ticket():
         # -------------------------
         # NOTIFICATIONS
         # -------------------------
+
         notify_admins(
+
             "New Ticket Created",
+
             f"New support ticket {ticket_number} was created.",
+
             "ticket_created",
+
             ticket_id
+
         )
 
         notify_project_managers(
+
             project_id,
+
             "New Ticket Created",
+
             f"New support ticket {ticket_number} was created.",
+
             "ticket_created",
+
             ticket_id
+
         )
 
         cur.close()
 
         if session.get('role') == 'manager':
             return redirect('/manager-dashboard')
+
         elif session.get('role') == 'customer':
             return redirect('/customer-dashboard')
+
         return redirect('/admin-dashboard')
+
+    # -------------------------
+    # DEBUG
+    # -------------------------
+
+    print("ROLE =", session.get('role'))
+    print("USER =", session.get('user_id'))
+    print("PROJECTS =", projects)
+    print("SESSION =", dict(session))
 
     cur.close()
 
     return render_template(
+
         'create_ticket.html',
+
         next_ticket_number=next_ticket_number,
+
         full_name=session.get('full_name'),
+
         projects=projects
+
     )
 
 @app.route('/ticket/<int:ticket_id>')
@@ -2191,6 +2305,13 @@ def customer_dashboard():
 
         resolved_tickets=resolved_tickets
 
+    )
+
+@app.route('/forgot-password')
+def forgot_password():
+
+    return render_template(
+        'forgot_password.html'
     )
 
 @app.route('/uploads/<filename>')

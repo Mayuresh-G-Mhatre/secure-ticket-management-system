@@ -830,6 +830,11 @@ td {
 .content::-webkit-scrollbar-thumb:hover { background: #b8b0a6; }
 
 </style>
+
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/dark-mode.css') }}"
+>
 </head>
 <body>
 
@@ -903,7 +908,7 @@ td {
         <polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/>
       </svg>
       Unassigned Tickets
-      <span class="nav-badge">12</span>
+      <span class="nav-badge"></span>
     </a>
 
     <a href="/archived-tickets"
@@ -1002,7 +1007,7 @@ td {
             outline:none;
             font-size:13px;
             width:220px;
-            background:white;
+            background:var(--surface);
         "
     >
 
@@ -1621,5 +1626,8 @@ td {
     weekday:'long', day:'numeric', month:'long', year:'numeric'
   });
 </script>
+<script
+    src="{{ url_for('static', filename='js/dark-mode.js') }}"
+></script>
 </body>
 </html>

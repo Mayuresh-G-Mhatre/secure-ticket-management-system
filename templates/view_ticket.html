@@ -79,7 +79,7 @@ body{
 }
 
 .card{
-    background:white;
+    background:var(--surface);
     border-radius:24px;
     border:1px solid var(--border);
     box-shadow:0 10px 35px rgba(15,23,42,0.05);
@@ -228,7 +228,7 @@ body{
 }
 
 .download-btn{
-    background:#f3f4f6;
+    background:var(--cream);
     color:var(--navy);
 }
 
@@ -296,11 +296,15 @@ body{
 }
 
 .secondary-action{
-    background:#f3f4f6;
+    background:var(--cream);
     color:var(--navy);
 }
 
 </style>
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/dark-mode.css') }}"
+>
 </head>
 
 <body>
@@ -789,7 +793,7 @@ body{
                 margin-bottom:12px;
                 font-size:14px;
                 font-weight:600;
-                background:white;
+                background:var(--surface);
             "
         >
 
@@ -851,7 +855,7 @@ body{
         margin-bottom:12px;
         font-size:14px;
         font-weight:600;
-        background:white;
+        background:var(--surface);
     "
 >
 
@@ -919,6 +923,8 @@ body{
     </div>
 
 </div>
-
+<script
+    src="{{ url_for('static', filename='js/dark-mode.js') }}"
+></script>
 </body>
 </html>

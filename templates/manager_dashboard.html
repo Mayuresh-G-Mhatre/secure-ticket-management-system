@@ -830,6 +830,10 @@ td {
 .content::-webkit-scrollbar-thumb:hover { background: #b8b0a6; }
 
 </style>
+<link
+    rel="stylesheet"
+    href="{{ url_for('static', filename='css/dark-mode.css') }}"
+>
 </head>
 <body>
 
@@ -951,7 +955,7 @@ td {
             outline:none;
             font-size:13px;
             width:220px;
-            background:white;
+            background:var(--surface);
         "
     >
 
@@ -1347,5 +1351,8 @@ td {
     weekday:'long', day:'numeric', month:'long', year:'numeric'
   });
 </script>
+<script
+    src="{{ url_for('static', filename='js/dark-mode.js') }}"
+></script>
 </body>
 </html>
