@@ -138,37 +138,37 @@ body{
 }
 
 .priority-high{
-    background:#fff7ed;
+    background:var(--cream);
     color:#d97706;
 }
 
 .priority-medium{
-    background:#eff6ff;
+    background:var(--cream);
     color:#2563eb;
 }
 
 .priority-low{
-    background:#ecfdf5;
+    background:var(--cream);
     color:#16a34a;
 }
 
 .priority-critical{
-    background:#fef2f2;
+    background:var(--cream);
     color:#dc2626;
 }
 
 .status-open{
-    background:#fef2f2;
+    background:var(--cream);
     color:#dc2626;
 }
 
 .status-progress{
-    background:#fff7ed;
+    background:var(--cream);
     color:#d97706;
 }
 
 .status-resolved{
-    background:#ecfdf5;
+    background:var(--cream);
     color:#16a34a;
 }
 
@@ -179,7 +179,7 @@ body{
     display:flex;
     justify-content:space-between;
     align-items:center;
-    background:#fcfbf8;
+    background:var(--cream);
 }
 
 .file-info{
@@ -192,7 +192,7 @@ body{
     width:60px;
     height:60px;
     border-radius:18px;
-    background:#f3f4f6;
+    background:var(--cream);
     display:flex;
     align-items:center;
     justify-content:center;
@@ -301,6 +301,7 @@ body{
 }
 
 </style>
+<link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
 <link
     rel="stylesheet"
     href="{{ url_for('static', filename='css/dark-mode.css') }}"
