@@ -1,9 +1,12 @@
 import os
+from functools import wraps
+
 from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
 from flask import send_from_directory
-from flask import Flask, render_template, request, redirect, session
+from flask import Flask, render_template, request, redirect, session, url_for
 from flask_mysqldb import MySQL
+
 
 app = Flask(__name__)
 load_dotenv()
@@ -19,6 +22,52 @@ if not os.path.exists(UPLOAD_FOLDER):
 # -------------------------
 
 app.secret_key = os.getenv('SECRET_KEY')
+
+
+# -------------------------
+# ROLE AUTHORIZATION
+# -------------------------
+
+def role_required(*allowed_roles):
+
+    def decorator(f):
+
+        @wraps(f)
+        def decorated_function(*args, **kwargs):
+
+            if 'user_id' not in session:
+                return redirect(url_for('home'))
+
+            if session.get('role') not in allowed_roles:
+                return "Unauthorized", 403
+
+            return f(*args, **kwargs)
+
+        return decorated_function
+
+    return decorator
+
+# -------------------------
+# GLOBAL AUTHENTICATION
+# -------------------------
+
+@app.before_request
+def require_login():
+
+    public_endpoints = {
+        'home',
+        'login',
+        'forgot_password',
+        'uploaded_file'
+    }
+
+    # Allow public pages/routes
+    if request.endpoint in public_endpoints:
+        return
+
+    # Require login for all other routes
+    if 'user_id' not in session:
+        return redirect(url_for('home'))
 
 # -------------------------
 # MYSQL CONFIGURATION
@@ -402,6 +451,7 @@ def login():
 # -------------------------
 
 @app.route('/admin-dashboard')
+@role_required('admin')
 def admin_dashboard():
 
     search = request.args.get('search')
@@ -509,6 +559,7 @@ def admin_dashboard():
 )
 
 @app.route('/unassigned-tickets')
+@role_required('admin')
 def unassigned_tickets():
 
     cur = mysql.connection.cursor()
@@ -576,6 +627,7 @@ def unassigned_tickets():
         active_page='unassigned_tickets'
     )
 @app.route('/create-ticket', methods=['GET', 'POST'])
+@role_required('admin', 'manager', 'customer')
 def create_ticket():
 
     cur = mysql.connection.cursor()
@@ -809,6 +861,7 @@ def create_ticket():
     )
 
 @app.route('/ticket/<int:ticket_id>')
+@role_required('admin', 'engineer', 'manager', 'customer')
 def view_ticket(ticket_id):
 
     cur = mysql.connection.cursor()
@@ -863,6 +916,7 @@ def view_ticket(ticket_id):
 
 
 @app.route('/update-status/<int:ticket_id>', methods=['POST'])
+@role_required('admin', 'engineer')
 def update_status(ticket_id):
 
     new_status = request.form['status']
@@ -979,6 +1033,7 @@ def update_status(ticket_id):
     return redirect(f'/ticket/{ticket_id}')
 
 @app.route('/assign-ticket/<int:ticket_id>', methods=['POST'])
+@role_required('admin')
 def assign_ticket(ticket_id):
 
     engineer_id = request.form['engineer_id']
@@ -1017,6 +1072,7 @@ def assign_ticket(ticket_id):
     return redirect(f'/ticket/{ticket_id}')
 
 @app.route('/archive-ticket/<int:ticket_id>', methods=['POST'])
+@role_required('admin')
 def archive_ticket(ticket_id):
 
     cur = mysql.connection.cursor()
@@ -1112,6 +1168,7 @@ def archived_tickets():
     )
 
 @app.route('/reports')
+@role_required('admin')
 def reports():
 
     cur = mysql.connection.cursor()
@@ -1308,6 +1365,7 @@ def reports():
     )
 
 @app.route('/settings')
+@role_required('admin')
 def settings():
 
     cur = mysql.connection.cursor()
@@ -1372,6 +1430,7 @@ def settings():
     )
 
 @app.route('/restore-ticket/<int:ticket_id>', methods=['POST'])
+@role_required('admin')
 def restore_ticket(ticket_id):
 
     cur = mysql.connection.cursor()
@@ -1391,6 +1450,7 @@ def restore_ticket(ticket_id):
     return redirect('/archived-tickets')
 
 @app.route('/manage-users')
+@role_required('admin')
 def manage_users():
 
     cur = mysql.connection.cursor()
@@ -1436,6 +1496,7 @@ def manage_users():
     )
 
 @app.route('/add-user', methods=['GET', 'POST'])
+@role_required('admin')
 def add_user():
 
     if request.method == 'POST':
@@ -1474,6 +1535,7 @@ def add_user():
     return render_template('add_user.html')
 
 @app.route('/delete-user/<int:user_id>', methods=['POST'])
+@role_required('admin')
 def delete_user(user_id):
 
     # Prevent deleting main admin
@@ -1498,6 +1560,7 @@ def delete_user(user_id):
     return redirect('/manage-users')
 
 @app.route('/add-note/<int:ticket_id>', methods=['POST'])
+@role_required('admin', 'engineer', 'manager', 'customer')
 def add_note(ticket_id):
 
     if 'user_id' not in session:
@@ -1580,6 +1643,7 @@ def add_note(ticket_id):
     return redirect(f'/ticket/{ticket_id}')
 
 @app.route('/engineer-dashboard')
+@role_required('engineer')
 def engineer_dashboard():
 
     engineer_id = session.get('user_id')
@@ -1697,15 +1761,8 @@ def engineer_dashboard():
     )
 
 @app.route('/manager-dashboard')
+@role_required('manager')
 def manager_dashboard():
-
-    # -------------------------
-    # MANAGER SESSION CHECK
-    # -------------------------
-
-    if session.get('role') != 'manager':
-
-        return redirect('/')
 
     cur = mysql.connection.cursor()
 
@@ -1929,10 +1986,12 @@ def manager_dashboard():
     )
 
 @app.route('/manager-reports')
+@role_required('manager')
 def manager_reports():
 
-    if session.get('role') != 'manager':
-        return redirect('/')
+    # -------------------------
+    # MANAGER SESSION CHECK 
+    # -------------------------
 
     cur = mysql.connection.cursor()
 
@@ -2097,15 +2156,8 @@ def manager_reports():
     )
 
 @app.route('/customer-dashboard')
+@role_required('customer')
 def customer_dashboard():
-
-    # -------------------------
-    # CUSTOMER SESSION CHECK
-    # -------------------------
-
-    if session.get('role') != 'customer':
-
-        return redirect('/')
 
     cur = mysql.connection.cursor()
 
