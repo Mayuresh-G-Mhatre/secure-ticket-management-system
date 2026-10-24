@@ -1,12 +1,10 @@
 import os
 from functools import wraps
-
 from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
 from flask import send_from_directory
 from flask import Flask, render_template, request, redirect, session, url_for
 from flask_mysqldb import MySQL
-
 
 app = Flask(__name__)
 load_dotenv()
@@ -23,52 +21,6 @@ if not os.path.exists(UPLOAD_FOLDER):
 
 app.secret_key = os.getenv('SECRET_KEY')
 
-
-# -------------------------
-# ROLE AUTHORIZATION
-# -------------------------
-
-def role_required(*allowed_roles):
-
-    def decorator(f):
-
-        @wraps(f)
-        def decorated_function(*args, **kwargs):
-
-            if 'user_id' not in session:
-                return redirect(url_for('home'))
-
-            if session.get('role') not in allowed_roles:
-                return "Unauthorized", 403
-
-            return f(*args, **kwargs)
-
-        return decorated_function
-
-    return decorator
-
-# -------------------------
-# GLOBAL AUTHENTICATION
-# -------------------------
-
-@app.before_request
-def require_login():
-
-    public_endpoints = {
-        'home',
-        'login',
-        'forgot_password',
-        'uploaded_file'
-    }
-
-    # Allow public pages/routes
-    if request.endpoint in public_endpoints:
-        return
-
-    # Require login for all other routes
-    if 'user_id' not in session:
-        return redirect(url_for('home'))
-
 # -------------------------
 # MYSQL CONFIGURATION
 # -------------------------
@@ -80,6 +32,53 @@ app.config['MYSQL_DB'] = os.getenv('MYSQL_DB')
 app.config['MYSQL_PORT'] = int(os.getenv('MYSQL_PORT', 3306))
 
 mysql = MySQL(app)
+
+# -------------------------
+# ROLE-BASED ACCESS CONTROL
+# -------------------------
+
+def role_required(*allowed_roles):
+
+    def decorator(function):
+
+        @wraps(function)
+        def wrapper(*args, **kwargs):
+
+            # USER NOT LOGGED IN
+            if 'user_id' not in session:
+                return redirect(url_for('home'))
+
+            # USER LOGGED IN BUT WRONG ROLE
+            if session.get('role') not in allowed_roles:
+                return redirect(url_for('home'))
+
+            return function(*args, **kwargs)
+
+        return wrapper
+
+    return decorator
+
+# -------------------------
+# GLOBAL LOGIN PROTECTION
+# -------------------------
+
+@app.before_request
+def require_login():
+
+    public_endpoints = {
+        'home',
+        'login',
+        'forgot_password',
+        'static'
+    }
+
+    # Allow public pages
+    if request.endpoint in public_endpoints:
+        return
+
+    # Block unauthenticated users
+    if 'user_id' not in session:
+        return redirect(url_for('home'))
 
 # -------------------------
 # NOTIFICATION FUNCTIONS
@@ -336,10 +335,10 @@ def inject_notifications():
         unread_count=unread_count
     )
 @app.route('/notification/<int:notif_id>/<int:ticket_id>')
+@role_required('admin', 'engineer', 'manager', 'customer')
 def open_notification(notif_id, ticket_id):
 
-    if 'user_id' not in session:
-        return redirect('/')
+
 
     cur = mysql.connection.cursor()
 
@@ -368,10 +367,10 @@ def open_notification(notif_id, ticket_id):
     return redirect(f'/ticket/{ticket_id}')
 
 @app.route('/clear-notifications')
+@role_required('admin', 'engineer', 'manager', 'customer')
 def clear_notifications():
 
-    if 'user_id' not in session:
-        return redirect('/')
+
 
     cur = mysql.connection.cursor()
 
@@ -445,6 +444,17 @@ def login():
 
     else:
         return "Invalid Username, Password or Role"
+
+# -------------------------
+# LOGOUT
+# -------------------------
+
+@app.route('/logout')
+def logout():
+
+    session.clear()
+
+    return redirect(url_for('home'))
 
 # -------------------------
 # DASHBOARDS
@@ -1092,6 +1102,7 @@ def archive_ticket(ticket_id):
     return redirect('/admin-dashboard')
 
 @app.route('/archived-tickets')
+@role_required('admin')
 def archived_tickets():
 
     cur = mysql.connection.cursor()
@@ -1563,8 +1574,6 @@ def delete_user(user_id):
 @role_required('admin', 'engineer', 'manager', 'customer')
 def add_note(ticket_id):
 
-    if 'user_id' not in session:
-        return redirect('/')
 
     note = request.form['note']
 
@@ -1763,6 +1772,7 @@ def engineer_dashboard():
 @app.route('/manager-dashboard')
 @role_required('manager')
 def manager_dashboard():
+
 
     cur = mysql.connection.cursor()
 
@@ -1989,10 +1999,6 @@ def manager_dashboard():
 @role_required('manager')
 def manager_reports():
 
-    # -------------------------
-    # MANAGER SESSION CHECK 
-    # -------------------------
-
     cur = mysql.connection.cursor()
 
     manager_id = session.get('user_id')
@@ -2009,13 +2015,20 @@ def manager_reports():
     project_ids = [row[0] for row in cur.fetchall()]
 
     if not project_ids:
-
         return render_template(
-            'manager_reports.html',
-            status_data=[],
-            priority_data=[],
-            project_data=[]
-        )
+        'manager_reports.html',
+        total_tickets=0,
+        open_tickets=0,
+        in_progress_tickets=0,
+        resolved_tickets=0,
+        status_data=[],
+        priority_data=[],
+        project_data=[],
+        critical_count=0,
+        high_count=0,
+        medium_count=0,
+        low_count=0
+    )
 
     placeholders = ','.join(['%s'] * len(project_ids))
 
@@ -2158,6 +2171,7 @@ def manager_reports():
 @app.route('/customer-dashboard')
 @role_required('customer')
 def customer_dashboard():
+
 
     cur = mysql.connection.cursor()
 

@@ -749,8 +749,7 @@ body {
 
             </div>
 
-            <a href="/"
-               class="logout-btn">
+            <a href="{{ url_for('logout') }}" class="logout-btn">
 
                 <svg viewBox="0 0 24 24"
                      fill="none"
@@ -1056,101 +1055,43 @@ body {
         const ctx = document.getElementById('ticketChart');
 
         new Chart(ctx, {
-
             type: 'doughnut',
-
             data: {
-
                 labels: [
                     'Open',
                     'In Progress',
                     'Resolved',
                     'Closed'
                 ],
-
                 datasets: [{
-
                     data: [
-                            {{ open_tickets|tojson }},
-                            {{ in_progress_tickets|tojson }},
-                            {{ resolved_tickets|tojson }},
-                            {{ closed_tickets|tojson }}
-                        ],
-
+                        {{ open_tickets|tojson }},
+                        {{ in_progress_tickets|tojson }},
+                        {{ resolved_tickets|tojson }},
+                        {{ closed_tickets|tojson }}
+                    ],
                     backgroundColor: [
                         '#ef4444',
                         '#f59e0b',
                         '#22c55e',
                         '#3b82f6'
                     ],
-
-                    borderWidth:0
-
+                    borderWidth: 0
                 }]
-
             },
 
             options: {
-
-    responsive:true,
-
-    plugins: {
-
-        legend: {
-
-            position:'bottom',
-
-            labels: {
-
-                color: getComputedStyle(document.body)
-                    .getPropertyValue('--text-1')
-
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            color: getComputedStyle(document.body)
+                                .getPropertyValue('--text-1')
+                        }
+                    }
+                }
             }
-
-        }
-
-    },
-
-    scales: {
-
-        x: {
-
-            ticks: {
-
-                color: getComputedStyle(document.body)
-                    .getPropertyValue('--text-2')
-
-            },
-
-            grid: {
-
-                color: 'rgba(148,163,184,0.1)'
-
-            }
-
-        },
-
-        y: {
-
-            ticks: {
-
-                color: getComputedStyle(document.body)
-                    .getPropertyValue('--text-2')
-
-            },
-
-            grid: {
-
-                color: 'rgba(148,163,184,0.1)'
-
-            }
-
-        }
-
-    }
-
-}
-
         });
 
         // DATE
