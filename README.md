@@ -1,363 +1,435 @@
 # 🛡️ Secure Ticket Management System (STMS)
 
-**PROJECT LIVE LINK-:** https://secure-ticket-management-system.onrender.com/
+<p align="center">
+  <strong>A Secure, Cloud-Enabled IT Support Ticket Management Platform</strong>
+</p>
 
-## 📖 Project Overview
-
-Secure Ticket Management System (STMS) is a web-based enterprise support ticket management platform developed as an MCA Major Project.
-
-The system enables organizations to manage support requests, assign tickets, monitor issue resolution, generate reports, and maintain secure role-based access for different stakeholders including Administrators, Managers, Engineers, and Customers.
-
-The project simulates a real-world IT Service Desk environment and incorporates modern UI design, analytics dashboards, notification management, project-based access control, and ticket lifecycle management.
+<p align="center">
+  <a href="https://secure-ticket-management-system.onrender.com/">
+    <img src="https://img.shields.io/badge/Live%20Application-Visit%20STMS-success?style=for-the-badge&logo=render" alt="Live Application">
+  </a>
+  <img src="https://img.shields.io/badge/Python-3.x-blue?style=for-the-badge&logo=python" alt="Python">
+  <img src="https://img.shields.io/badge/Flask-Web%20Framework-black?style=for-the-badge&logo=flask" alt="Flask">
+  <img src="https://img.shields.io/badge/MySQL-Database-orange?style=for-the-badge&logo=mysql" alt="MySQL">
+</p>
 
 ---
 
-## 🎯 Objectives
+## 📌 Project Overview
 
-* Provide a centralized ticket management platform.
-* Enable secure role-based access control.
-* Improve ticket tracking and issue resolution workflow.
-* Generate analytical reports and dashboards.
-* Simulate enterprise-level support management processes.
-* Enhance customer and project-specific security controls.
+The **Secure Ticket Management System (STMS)** is a web-based IT support and service management platform developed as an MCA Major Internship Project.
+
+The application provides a centralized environment for organizations to create, assign, track, and resolve support tickets through a structured ticket lifecycle.
+
+STMS implements **Role-Based Access Control (RBAC)** to provide different levels of access to Administrators, Managers, Engineers, and Customers. It also includes project-based access restrictions, notification management, reporting dashboards, and ticket activity tracking.
+
+The system is designed to simulate a real-world enterprise IT Service Desk environment while emphasizing security, usability, and efficient support operations.
+
+### 🌐 Live Application
+
+**[https://secure-ticket-management-system.onrender.com/](https://secure-ticket-management-system.onrender.com/)**
+
+### 🎯 Project Objectives
+
+- Develop a centralized IT support ticket management platform.
+- Implement authentication and role-based authorization.
+- Establish structured ticket creation, assignment, and resolution workflows.
+- Provide project-level access management.
+- Improve communication through an integrated notification system.
+- Generate analytical reports for monitoring ticket activity.
+- Demonstrate cloud-enabled application deployment.
 
 ---
 
 # 🚀 Key Features
 
-## 🔐 Authentication & Authorization
+## 🔐 1. Authentication & Authorization
 
-* Secure Login System
-* Session Management
-* Role-Based Access Control (RBAC)
-* Admin Authentication
-* Manager Authentication
-* Engineer Authentication
-* Customer Authentication
+- Login and logout functionality.
+- Session-based authentication.
+- Role-Based Access Control (RBAC).
+- Role-specific dashboard access.
+- Protected application routes.
+- Access restrictions based on user roles.
 
----
+## 🎫 2. Ticket Management
 
-## 🎫 Ticket Management
+- Create and submit support tickets.
+- View ticket details.
+- Assign tickets to engineers.
+- Update ticket status.
+- Search and filter tickets.
+- Manage ticket priorities.
+- Add ticket notes and comments.
+- Upload ticket attachments.
+- Archive completed tickets.
 
-* Create Support Tickets
-* View Ticket Details
-* Update Ticket Status
-* Ticket Assignment Workflow
-* Search Tickets
-* Status-Based Filtering
-* Ticket Notes & Comments
-* File Attachment Upload
-* Ticket Archiving
+## 👥 3. User Management
 
----
+- Create new user accounts.
+- Edit user information.
+- Delete user accounts.
+- Assign user roles.
+- Manage user access.
+- Associate users with projects.
 
-## 👥 User Management
+## 📁 4. Project Management
 
-* Add New Users
-* Edit User Information
-* Delete Users
-* Role Assignment
-* User Access Control
+- Create and manage projects.
+- Map users to projects.
+- Assign managers to projects.
+- Associate customers with projects.
+- Implement project-based access restrictions.
+- Restrict ticket visibility according to project assignments.
 
----
+## 🔔 5. Notification Management
 
-## 📁 Project Management
+- Centralized notification system.
+- Ticket creation notifications.
+- Ticket status update notifications.
+- Comment-related notifications.
+- Unread notification counter.
+- Mark notifications as read.
+- Clear all notifications.
+- Navigate directly to tickets from notifications.
 
-* Project Creation & Management
-* User ↔ Project Mapping
-* Manager ↔ Project Assignment
-* Customer ↔ Project Assignment
-* Customer Project Lock
-* Project-Based Ticket Visibility
+## 📊 6. Reports & Analytics
 
----
-
-## 🔔 Notification System
-
-* Global Notification Engine
-* Ticket Creation Notifications
-* Ticket Status Update Notifications
-* Comment Notifications
-* Unread Notification Counter
-* Mark Notifications as Read
-* Clear All Notifications
-* Direct Ticket Navigation from Notifications
-
----
-
-## 📊 Reports & Analytics
-
-### Admin Reports
-
-* Total Tickets
-* Open Tickets
-* In Progress Tickets
-* Resolved Tickets
+### Administrator Reports
+- Total tickets.
+- Open tickets.
+- In-progress tickets.
+- Resolved tickets.
+- Overall ticket statistics.
 
 ### Manager Reports
+- Project-specific ticket reports.
+- Assigned project analytics.
+- Project-level ticket monitoring.
 
-* Project-Specific Reports
-* Assigned Project Analytics
+### Interactive Analytics
+- Ticket status distribution.
+- Ticket priority distribution.
+- Project distribution analytics.
 
-### Interactive Charts
+## 🌙 7. Dark Mode
 
-* Ticket Status Distribution
-* Ticket Priority Distribution
-* Project Distribution Analytics
-
----
-
-## 🌙 Dark Mode
-
-* Global Dark Mode Toggle
-* Persistent User Preference
-* Dashboard Dark Theme
-* Form Dark Theme
-* Report Page Dark Theme
+- Application-wide dark mode.
+- Persistent user preference.
+- Dashboard theme support.
+- Form and report page theme support.
 
 ---
 
-## 🛡️ Security Features
+# 👤 User Roles & Permissions
 
-* Session-Based Authentication
-* Role-Based Route Protection
-* Customer Data Isolation
-* Project-Level Access Restrictions
-* Secure File Upload Handling
-* Environment Variable Configuration
+| User Role | Responsibilities |
+|---|---|
+| **Administrator** | Manage users and projects, create and assign tickets, view all tickets and reports. |
+| **Manager** | Access assigned projects, create tickets, monitor project tickets and view project reports. |
+| **Engineer** | View assigned tickets, update ticket status, and add notes or comments. |
+| **Customer** | Create support tickets, view own tickets, receive notifications, and access assigned projects. |
 
----
-
-# 👤 User Roles
-
-## Administrator
-
-* Manage Users
-* Manage Projects
-* Create Tickets
-* Assign Tickets
-* Access All Reports
-* View All Tickets
-
-## Manager
-
-* Access Assigned Projects Only
-* Create Tickets
-* View Project Reports
-* Monitor Project Tickets
-
-## Engineer
-
-* View Assigned Tickets
-* Update Ticket Status
-* Add Notes & Comments
-
-## Customer
-
-* Create Tickets
-* View Own Tickets
-* Receive Notifications
-* Access Assigned Project Only
+Each role has a dedicated dashboard and access permissions based on its responsibilities.
 
 ---
 
 # 🛠️ Technology Stack
 
-| Technology   | Purpose                   |
-| ------------ | ------------------------- |
-| Python       | Backend Development       |
-| Flask        | Web Framework             |
-| MySQL        | Database Management       |
-| HTML5        | Structure                 |
-| CSS3         | Styling                   |
-| JavaScript   | Client-Side Functionality |
-| Chart.js     | Analytics & Reporting     |
-| Jinja2       | Template Rendering        |
-| Git & GitHub | Version Control           |
+| Technology | Purpose |
+|---|---|
+| Python | Backend programming |
+| Flask | Web application framework |
+| MySQL | Relational database management |
+| HTML5 | Web page structure |
+| CSS3 | Styling and responsive layouts |
+| JavaScript | Client-side functionality |
+| Chart.js | Data visualization and analytics |
+| Jinja2 | Server-side template rendering |
+| Git | Version control |
+| GitHub | Source code repository |
+| Render | Application hosting and deployment |
+| Aiven | Managed MySQL database hosting |
 
 ---
 
 # 🗄️ Database Design
 
-Main Tables Used:
+The application uses a MySQL relational database to manage users, tickets, projects, and related activities.
 
-* users
-* tickets
-* projects
-* user_projects
-* ticket_notes
-* notifications
+### Main Database Tables
 
-Relationships:
+| Table | Description |
+|---|---|
+| `users` | Stores user account information and roles. |
+| `tickets` | Stores support ticket information. |
+| `projects` | Stores project details. |
+| `user_projects` | Maintains user-to-project associations. |
+| `ticket_notes` | Stores ticket notes and comments. |
+| `notifications` | Stores application notifications. |
 
-* Users ↔ Projects
-* Projects ↔ Tickets
-* Tickets ↔ Notifications
-* Tickets ↔ Notes
+### Key Relationships
+
+- Users ↔ Projects
+- Projects ↔ Tickets
+- Tickets ↔ Notes
+- Tickets ↔ Notifications
 
 ---
 
-# 📂 Project Structure
+# 🏗️ System Architecture
+
+The application follows a Flask-based web architecture.
 
 ```text
-secure-ticket-management-system/
-│
-├── static/
-│   ├── css/
-│   │   └── dark-mode.css
-│   └── js/
-│       └── dark-mode.js
-│
-├── templates/
-│   ├── index.html
-│   ├── admin_dashboard.html
-│   ├── manager_dashboard.html
-│   ├── engineer_dashboard.html
-│   ├── customer_dashboard.html
-│   ├── create_ticket.html
-│   ├── view_ticket.html
-│   ├── reports.html
-│   ├── manager_reports.html
-│   ├── manage_users.html
-│   ├── archived_tickets.html
-│   ├── notifications.html
-│   ├── settings.html
-│   └── forgot_password.html
-│
-├── uploads/
-├── app.py
-├── requirements.txt
-├── .env
-├── .gitignore
-└── README.md
+             Users
+               |
+               v
+       Web Browser Interface
+               |
+               v
+       Flask Application
+        (Backend Logic)
+               |
+       +-------+-------+
+       |               |
+       v               v
+ Authentication    Ticket & Project
+  and RBAC          Management
+       |               |
+       +-------+-------+
+               |
+               v
+          MySQL Database
+               |
+               v
+       Reports & Analytics
 ```
 
 ---
 
-# ⚙️ Installation & Setup
+# 📸 Application Screenshots
 
-## Clone Repository
+The following screenshots demonstrate the application's interface and major modules.
+
+> Add your screenshots inside the `screenshots/` directory in the repository. Use the filenames shown below, or update the image paths to match your actual filenames.
+
+## 1. Login Page
+
+![STMS Login Page](screenshots/login-page.png)
+
+## 2. Administrator Dashboard
+
+![Administrator Dashboard](screenshots/admin-dashboard.png)
+
+## 3. Manager Dashboard
+
+![Manager Dashboard](screenshots/manager-dashboard.png)
+
+## 4. Engineer Dashboard
+
+![Engineer Dashboard](screenshots/engineer-dashboard.png)
+
+## 5. Customer Dashboard
+
+![Customer Dashboard](screenshots/customer-dashboard.png)
+
+## 6. Ticket Management
+
+![Ticket Management](screenshots/ticket-management.png)
+
+## 7. User Management
+
+![User Management](screenshots/user-management.png)
+
+## 8. Reports & Analytics
+
+![Reports and Analytics](screenshots/reports-analytics.png)
+
+## 9. Notification System
+
+![Notification System](screenshots/notifications.png)
+
+## 10. Dark Mode
+
+![Dark Mode](screenshots/dark-mode.png)
+
+---
+
+# ⚙️ Installation & Local Setup
+
+Follow these steps to run STMS on your local machine.
+
+### Prerequisites
+
+- Python 3.x
+- MySQL database
+- Git
+- Code editor (VS Code recommended)
+
+### 1. Clone the Repository
 
 ```bash
 git clone https://github.com/Mayuresh-G-Mhatre/secure-ticket-management-system.git
 ```
 
-## Navigate to Project
+### 2. Navigate to the Project Directory
 
 ```bash
 cd secure-ticket-management-system
 ```
 
-## Create Virtual Environment
+### 3. Create a Virtual Environment
 
 ```bash
 python -m venv venv
 ```
 
-## Activate Environment
+### 4. Activate the Virtual Environment
 
-### Windows
+**Windows:**
 
 ```bash
 venv\Scripts\activate
 ```
 
-### Linux / macOS
+**Linux / macOS:**
 
 ```bash
 source venv/bin/activate
 ```
 
-## Install Dependencies
+### 5. Install Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-## Configure Environment Variables
+### 6. Configure Environment Variables
 
-Create `.env`
+Create a `.env` file in the project root directory.
+
+Add your database connection details and application secret:
 
 ```env
+SECRET_KEY=your_secure_secret_key
+
+MYSQL_HOST=your_mysql_host
+MYSQL_USER=your_mysql_username
 MYSQL_PASSWORD=your_mysql_password
-SECRET_KEY=your_secret_key
+MYSQL_DB=your_database_name
 ```
 
-## Run Application
+Replace the example values with your actual configuration.
+
+**Important:** Never commit your `.env` file, database credentials, or secret keys to GitHub.
+
+### 7. Configure the Database
+
+Create the required MySQL database and tables using the project's database schema.
+
+Ensure the database connection settings in `.env` match your MySQL configuration.
+
+### 8. Run the Application
 
 ```bash
 python app.py
 ```
 
-Application URL:
+Open the application in your browser:
 
 ```text
-http://127.0.0.1:5000
+http://127.0.0.1:5000/
 ```
 
 ---
 
-# 📸 Screenshots
+# ☁️ Deployment
 
-## Login Page
+STMS is deployed as a cloud-hosted web application.
 
-(Add Screenshot)
+| Component | Platform |
+|---|---|
+| Application Hosting | Render |
+| Database Hosting | Aiven MySQL |
+| Source Code Management | GitHub |
+| Deployment Method | GitHub-connected automatic deployment |
 
-## Admin Dashboard
+### Live Application
 
-(Add Screenshot)
-
-## Manager Dashboard
-
-(Add Screenshot)
-
-## Engineer Dashboard
-
-(Add Screenshot)
-
-## Customer Dashboard
-
-(Add Screenshot)
-
-## Reports & Analytics
-
-(Add Screenshot)
-
-## Notification System
-
-(Add Screenshot)
+**[Open Secure Ticket Management System](https://secure-ticket-management-system.onrender.com/)**
 
 ---
 
-# 🔮 Future Scope
+# 🛡️ Security Considerations
 
-* Email-Based Password Recovery
-* SLA Management
-* Email Notifications
-* SMS Notifications
-* REST API Integration
-* Mobile Application
-* Multi-Tenant Support
-* AWS Cloud Deployment
-* Real-Time Ticket Updates
+Security is an important part of the STMS implementation.
+
+The application includes:
+
+- Session-based authentication.
+- Role-based route protection.
+- Role-specific dashboard access.
+- Project-based access restrictions.
+- Customer-specific ticket visibility.
+- Secure file upload handling.
+- Environment variable-based configuration.
+- Protected application routes.
+
+**Note:** Authentication and authorization controls should be evaluated alongside object-level ticket permissions, uploaded-file access, and password storage practices.
+
+---
+
+# 🧪 Testing
+
+The project includes a Python-based security testing script:
+
+```text
+test_security.py
+```
+
+The script is intended to validate authentication and role-based route access.
+
+Run it using:
+
+```bash
+python test_security.py
+```
+
+Configure the required test credentials and application URL according to the script before execution.
+
+---
+
+# 🔮 Future Enhancements
+
+The following features can be considered for future development:
+
+- Email-based password recovery.
+- Service Level Agreement (SLA) management.
+- Automated email notifications.
+- SMS notifications.
+- REST API integration.
+- Mobile application support.
+- Multi-tenant architecture.
+- Real-time ticket updates.
+- Advanced reporting and analytics.
 
 ---
 
 # 📊 Project Status
 
-✅ Development Completed
-
-✅ Role-Based Access Control Implemented
-
-✅ Notification System Implemented
-
-✅ Reporting Dashboard Implemented
-
-✅ Dark Mode Implemented
-
-🟡 Deployment In Progress
-
-🟡 Documentation In Progress
+| Module | Status |
+|---|---|
+| Authentication & Authorization | ✅ Implemented |
+| Role-Based Access Control | ✅ Implemented |
+| Ticket Management | ✅ Implemented |
+| User Management | ✅ Implemented |
+| Project Management | ✅ Implemented |
+| Notification System | ✅ Implemented |
+| Reports & Analytics | ✅ Implemented |
+| Dark Mode | ✅ Implemented |
+| Cloud Deployment | ✅ Deployed |
+| Documentation | 🟡 In Progress |
 
 ---
 
@@ -365,14 +437,26 @@ http://127.0.0.1:5000
 
 **Mayuresh G. Mhatre**
 
-Master of Computer Applications (MCA)
+Master of Computer Applications (MCA)  
+Bharati Vidyapeeth (Deemed to be University)  
+Centre for Distance and Online Education
 
-Major Project – Secure Ticket Management System (STMS)
-
-2025–2026
+**Project:** MCA Major Internship Project  
+**Academic Year:** 2025–2026
 
 ---
 
-# ⭐ GitHub Repository
+# 🔗 Project Links
 
-If you found this project useful, please consider giving it a ⭐ on GitHub.
+- **Live Application:** https://secure-ticket-management-system.onrender.com/
+- **GitHub Repository:** https://github.com/Mayuresh-G-Mhatre/secure-ticket-management-system
+
+---
+
+<p align="center">
+  <strong>⭐ If you find this project interesting, consider giving the repository a star!</strong>
+</p>
+
+<p align="center">
+  Developed with ❤️ by Mayuresh G. Mhatre
+</p>
