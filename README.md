@@ -210,9 +210,8 @@ The application follows a Flask-based web architecture.
 
 # 📸 Application Screenshots
 
-The following screenshots demonstrate the application's interface and major modules.
+The following screenshots showcase the application's user interface, role-specific dashboards, ticket management functionality, reporting modules, and additional features.
 
-> Add your screenshots inside the `screenshots/` directory in the repository. Use the filenames shown below, or update the image paths to match your actual filenames.
 
 ## 1. Login Page
 
