@@ -216,43 +216,53 @@ The following screenshots demonstrate the application's interface and major modu
 
 ## 1. Login Page
 
-![STMS Login Page](screenshots/login-page.png)
+<img width="1917" height="1027" alt="Screenshot 2026-10-29 112523" src="https://github.com/user-attachments/assets/6e790a42-c21e-40cb-bf11-f391500abe36" />
+
 
 ## 2. Administrator Dashboard
 
-![Administrator Dashboard](screenshots/admin-dashboard.png)
+<img width="1917" height="1028" alt="Screenshot 2026-10-29 112543" src="https://github.com/user-attachments/assets/e7f17fac-0800-4666-8bb2-29bb06085961" />
+
 
 ## 3. Manager Dashboard
 
-![Manager Dashboard](screenshots/manager-dashboard.png)
+<img width="1917" height="1022" alt="image" src="https://github.com/user-attachments/assets/7efc0884-819f-4804-9a3d-23622c8fe8e2" />
+
 
 ## 4. Engineer Dashboard
 
-![Engineer Dashboard](screenshots/engineer-dashboard.png)
+<img width="1917" height="1027" alt="image" src="https://github.com/user-attachments/assets/c13c6663-0f75-44d2-8787-fd341bc73f6b" />
+
 
 ## 5. Customer Dashboard
 
-![Customer Dashboard](screenshots/customer-dashboard.png)
+<img width="1917" height="1012" alt="image" src="https://github.com/user-attachments/assets/53bde1b1-8c3a-40fd-8434-f2283e6f46c3" />
+
 
 ## 6. Ticket Management
 
-![Ticket Management](screenshots/ticket-management.png)
+<img width="1465" height="715" alt="image" src="https://github.com/user-attachments/assets/706ec7ff-18a5-4ad7-9d49-2cb161edda07" />
+
 
 ## 7. User Management
 
-![User Management](screenshots/user-management.png)
+<img width="1481" height="816" alt="image" src="https://github.com/user-attachments/assets/6235fcb1-6f4b-4641-a578-568eabd8ea86" />
+
 
 ## 8. Reports & Analytics
 
-![Reports and Analytics](screenshots/reports-analytics.png)
+<img width="1917" height="1005" alt="image" src="https://github.com/user-attachments/assets/b83fcc07-e581-4d1a-9930-f1d5c51cb1c9" />
+
 
 ## 9. Notification System
 
-![Notification System](screenshots/notifications.png)
+<img width="495" height="405" alt="image" src="https://github.com/user-attachments/assets/2d0c4f7b-00a0-404b-b6f9-00f7f6edf01f" />
+
 
 ## 10. Dark Mode
 
-![Dark Mode](screenshots/dark-mode.png)
+<img width="1917" height="1002" alt="image" src="https://github.com/user-attachments/assets/5cfe7aa0-7a37-4f12-951b-c3e044d47b62" />
+
 
 ---
 
