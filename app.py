@@ -2,6 +2,7 @@ import os
 from functools import wraps
 from dotenv import load_dotenv
 from werkzeug.utils import secure_filename
+from werkzeug.security import generate_password_hash, check_password_hash
 from flask import send_from_directory
 from flask import Flask, render_template, request, redirect, session, url_for
 from flask_mysqldb import MySQL
@@ -400,6 +401,7 @@ def home():
 # LOGIN AUTHENTICATION
 # -------------------------
 
+
 @app.route('/login', methods=['POST'])
 def login():
 
@@ -411,17 +413,18 @@ def login():
 
     query = """
         SELECT * FROM users
-        WHERE username=%s AND password=%s AND role=%s
+        WHERE username=%s AND role=%s
     """
 
-    cur.execute(query, (username, password, role))
+    cur.execute(query, (username, role))
 
     user = cur.fetchone()
 
     cur.close()
 
-    if user:
+    if user and check_password_hash(user[4], password):
 
+        session.clear()
         session['loggedin'] = True
         session['username'] = user[2]
         session['role'] = user[5]
@@ -1506,6 +1509,7 @@ def manage_users():
         active_page='manage_users'
     )
 
+
 @app.route('/add-user', methods=['GET', 'POST'])
 @role_required('admin')
 def add_user():
@@ -1517,6 +1521,9 @@ def add_user():
         email = request.form['email']
         password = request.form['password']
         role = request.form['role']
+
+        # Hash the password before storing it
+        hashed_password = generate_password_hash(password)
 
         cur = mysql.connection.cursor()
 
@@ -1531,7 +1538,7 @@ def add_user():
             full_name,
             username,
             email,
-            password,
+            hashed_password,
             role
         )
 
