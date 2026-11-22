@@ -8,3 +8,10 @@ app_before_password_hashing.py
 migrate_passwords.py
 STMS_new_sample_credentials_*.txt
 STMS_new_sample_credentials_*.tmp
+.env.tidb
+
+# Temporary TiDB migration testing
+run_tidb_test.py
+
+test_aiven_connection.py
+validate_aiven_accounts.py
