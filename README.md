@@ -149,7 +149,7 @@ Each role has a dedicated dashboard and access permissions based on its responsi
 | Git | Version control |
 | GitHub | Source code repository |
 | Render | Application hosting and deployment |
-| Aiven | Managed MySQL database hosting |
+| TiDB Cloud | Managed MySQL-compatible database hosting |
 
 ---
 
@@ -360,7 +360,7 @@ STMS is deployed as a cloud-hosted web application.
 | Component | Platform |
 |---|---|
 | Application Hosting | Render |
-| Database Hosting | Aiven MySQL |
+| Database Hosting | TiDB Cloud |
 | Source Code Management | GitHub |
 | Deployment Method | GitHub-connected automatic deployment |
 
